@@ -5,6 +5,21 @@ require 'items.ansButton'
 require 'items.slider'
 require 'items.textInput'
 
+require 'comm'
+
+	--************ SAVE IN FILE: *************--
+	-- Make student input this upon opening the app:
+	new = true						-- True if the user has never opened the app (and so not set the profile and class information)
+	forename = "Zac"
+	surname = "Sciamma"
+	email = "yo.yoyo@gmail.com"	
+	profileComplete = false
+	foundClass = false				-- True if the student has joined or is attempting to join a class
+	joinedClass = false				-- True if the student has joined a class
+	StudentID = nil					-- The student's ID within the class
+	TeacherName = nil
+	--****************************************--
+
 -- Some useful extension functions for strings:
 
 local metaT = getmetatable("")
@@ -46,22 +61,27 @@ function love.load()
 	states.menu = lovelyMoon.addState("states.menu", "menu")
 	states.solo = lovelyMoon.addState("states.solo", "solo")
 	states.multi = lovelyMoon.addState("states.multi", "multi")
-	states.classes = lovelyMoon.addState("states.classes", "classes")
+	states.joinClass = lovelyMoon.addState("states.joinClass", "joinClass")
+	states.class = lovelyMoon.addState("states.class", "class")
 	states.options = lovelyMoon.addState("states.options", "options")
 	states.stats = lovelyMoon.addState("states.statistics", "stats")
 	states.summary = lovelyMoon.addState("states.summary", "summary")
 	states.soloSetup = lovelyMoon.addState("states.soloSetup", "soloSetup")
 
 	lovelyMoon.enableState("menu")
+
+	serv = Server()
 end
 
 function love.update(dt)
 	lovelyMoon.events.update(dt)
+	serv:update(dt)
 end
 
 
 function love.draw()
 	lovelyMoon.events.draw()
+	serv:draw()
 end
 
 function love.keyreleased(key)

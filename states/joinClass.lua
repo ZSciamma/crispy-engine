@@ -1,10 +1,10 @@
--- This state shows the user a list of classes in which they are currently enrolled
+-- This state shows the user the class in which they are currently enrolled
 local state = {}
 
 -- State change buttons:
 
-local backB = sButton("Back", 100, 100, 50, 50, "classes", "menu")
-
+local backB = sButton("Back", 100, 100, 50, 50, "joinClass", "menu")
+local nextB = sButton("Next", love.graphics.getWidth() - 150, 100, 50, 50, "joinClass", function() join() end)
 local input = textInput(400, 200, 300, 100)
 
 function state:new()
@@ -39,6 +39,7 @@ end
 
 function state:draw()
 	backB:draw()
+	nextB:draw()
 	input:draw()
 end
 
@@ -53,13 +54,25 @@ end
 
 function state:mousepressed(x, y)
 	backB:mousepressed(x, y)
+	nextB:mousepressed(x, y)
 	input:mousepressed(x, y)
 end
 
 function state:mousereleased(x, y)
 	backB:mousereleased(x, y)
+	nextB:mousereleased(x, y)
 	input:mousereleased(x, y)
 end
 
+function join()
+	local classLocation = input.text
+	classLocation = "192.168.0.12:60472"		-- REMOVE LATER ONCE IT IS NO LONGER NEEDED FOR DEBUGING
+	foundClass = true
+	if serv:reachClass(classLocation) then
+		lovelyMoon.disableState("joinClass")
+		lovelyMoon.enableState("class")
+		foundClass = false
+	end
+end
 
 return state

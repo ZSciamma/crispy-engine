@@ -10,7 +10,6 @@ local shiftsPressed = 0					-- Number of shift keys currently pressed
 local placeHolderText = "Enter Class Code"
 
 function textInput:new(x, y, width, height)
-	self.on = true 						-- Is the field enabled?
 	self.x = x
 	self.y = y
 	self.width = width
@@ -47,18 +46,15 @@ function textInput:update(dt)
 	end
 
 	-- Place pointer below mouse (only in allowed positions):
-	---[[
 	if self.active then
 		if mouseX <= self.pointerx0 then
 			self.pointerIndex = 0
-		elseif mouseX >= self.pointerx0 + string.len(self.text) * letterWidth then
+		elseif mouseX >= self.pointerx0 + string.len(self.text) * letterWidth then		
 			self.pointerIndex = string.len(self.text)
 		else
-			self.pointerIndex = math.floor((mouseX - self.pointerx0) / letterWidth)
-		--else if mouseX < self.pointerX0 then self.pointer
+			self.pointerIndex = math.round((mouseX - self.pointerx0) / letterWidth)				-- Place pointer in nearest available position
 		end
 	end
-	--]]
 
 	-- Toggle pointer visibility every second:
 	if self.pressed then self.pointerTimer = self.pointerTimer - dt end
@@ -160,7 +156,6 @@ end
 
 function textInput:enter()
 	if not self.on then return end
-
 	self.pressed = false
 	-- Validate it and send it the database
 	return self.text
@@ -172,6 +167,10 @@ end
 
 function textInput:enable()
 	self.on = true
+end
+
+function math.round(number)
+	return math.floor(number + 0.5)
 end
 
 
