@@ -5,12 +5,14 @@ local state = {}
 -- The list of state changes required is as follows (from the first state to the second state within each bracket):
 
 
-
 menuButtons = {}
+
+if joinedClass == true then classStatus = "class" else classStatus = "joinClass" end
+
 menuButtonInfo = {
-	{ "Solo", "soloSetup" },
+	{ "Solo", "soloSetup" },			-- { Button text, state name }
 	{ "Multiplayer", "multi" },
-	{ "Classes", "classes" },
+	{ "Class", classStatus },			-- Directs the student to join a class or see their current class
 	{ "Options", "options" },
 	{ "Statistics", "stats" },
 	{ "Quit", function() love.event.quit() end }
@@ -81,7 +83,6 @@ function state:draw()
 end
 
 function state:keypressed(key, unicode)
-	if key == 's' then lovelyMoon.disableState("menu"); lovelyMoon.enableState("soloSetup") end
 end
 
 function state:keyreleased(key, unicode)
