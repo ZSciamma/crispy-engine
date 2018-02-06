@@ -24,7 +24,7 @@ end
 
 
 function state:enable()
-
+	inTournamentMatch = false				-- If player goes through solo setup screen, the are playing alone and not in a tournament
 end
 
 
