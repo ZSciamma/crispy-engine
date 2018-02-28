@@ -37,7 +37,7 @@ function ansButton:draw()
 	love.graphics.circle("fill", self.x, self.y, self.radius)
 	love.graphics.setColor(0, 0, 0)
 	love.graphics.circle("line", self.x, self.y, self.radius)
-	love.graphics.print(self.text, self.x, self.y)
+	love.graphics.printf(self.text, self.x, self.y, 100, "center")
 end
 
 function ansButton:mousepressed(x, y)

@@ -22,7 +22,7 @@ end
 
 
 function state:enable()
-	inTournamentMatch = true 				-- If player goes through this state, they are about to participate in a tournament match
+	studentInfo.inTournamentMatch = true 				-- If player goes through this state, they are about to participate in a tournament match
 	local tournamentStatus = serv:fetchTournamentInfo()
 end
 
@@ -39,7 +39,7 @@ end
 function state:draw()
 	backB:draw()
 	if newMatches then nextB:draw() end
-	if not studentInfo.joinedClass == "" then 
+	if not studentInfo.className then 
 		love.graphics.print("Please go to the 'New Class' section to connect to a class!", 300, 275)
 	elseif not runningTournament then
 		love.graphics.print("No ongoing tournament. Ask your teacher to create one!", 300, 275)
@@ -77,8 +77,9 @@ function NoMatches()
 end
 
 
-function ReceiveMatchInfo(serializedStudentsInfo)
-	local studentsInfo = loadstring(serializedStudentsInfo)
+function ReceiveMatchInfo(level1, level2)
+	level1 = loadstring(level1)
+	level2 = loadstring(level2)
 	runningTournament = true
 	newMatches = true
 end

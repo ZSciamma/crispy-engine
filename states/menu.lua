@@ -6,23 +6,7 @@ local state = {}
 
 
 menuButtons = {}
-
-if studentInfo.joinedClass == true then classStatus = "class" else classStatus = "joinClass" end
-
-menuButtonInfo = {
-	{ "Solo", "soloSetup" },			-- { Button text, state name }
-	{ "Multiplayer", "multi" },
-	{ "Class", classStatus },			-- Directs the student to join a class or see their current class
-	{ "Options", "options" },
-	{ "Statistics", "stats" },
-	{ "Quit", function() love.event.quit() end }
-	--{ "Quit", 400, 450, 300, 50, function() love.event.quit() end }
-}
-
-for i, button in ipairs(menuButtonInfo) do
-	table.insert(menuButtons, sButton(button[1], 400, 100 + 50 * i, 300, 50, "menu", button[2]))				-- DRY: most parameters are common to every button in the menu
-end
-
+menuButtonInfo = {}
 
 whiteKeys = { 0, 50, 100, 450, 500, 550 }
 blackKeys = { 35, 90, 180, 240, 330, 385, 440, 530, 590 }
@@ -44,7 +28,24 @@ end
 
 
 function state:enable()
+	menuButtons = {}
+	menuButtonInfo = {}
 
+	if studentInfo.className == "" or not studentInfo.className then classStatus = "joinClass" else classStatus = "class" end
+
+	menuButtonInfo = {
+		{ "Solo", "soloSetup" },			-- { Button text, state name }
+		{ "Multiplayer", "multi" },
+		{ "Class", classStatus },			-- Directs the student to join a class or see their current class
+		{ "Options", "options" },
+		{ "Statistics", "stats" },
+		{ "Quit", function() love.event.quit() end }
+		--{ "Quit", 400, 450, 300, 50, function() love.event.quit() end }
+	}
+
+	for i, button in ipairs(menuButtonInfo) do
+		table.insert(menuButtons, sButton(button[1], 400, 100 + 50 * i, 300, 50, "menu", button[2]))				-- DRY: most parameters are common to every button in the menu
+	end
 end
 
 
@@ -78,8 +79,6 @@ function state:draw()
 	for i, keyPos in ipairs(blackKeys) do
 		love.graphics.rectangle("fill", 500, keyPos, 200, 30)				-- The length and width of the black keys remain constant
 	end
-
-
 end
 
 function state:keypressed(key, unicode)

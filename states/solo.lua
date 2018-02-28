@@ -52,7 +52,7 @@ end
 function state:enable()
 	questionsAsked = 0							-- Reset upon arrival
 	questions = {}
-	for i = 0, qsPerTest do
+	for i = 0, studentInfo.qsPerTest do
 		createQuestion()
 	end
 
@@ -60,6 +60,8 @@ function state:enable()
 	waitingForAnswer = false
 
 	noteCountdown = 1							-- First question will start 1 second after user's arrival.
+
+	
 end
 
 
@@ -84,7 +86,7 @@ function state:update(dt)						-- Responsible for the specific timings
 
 
 	if noteCountdown <= 0 then					-- Timer's up! Ask which event should happen
-		if questionsAsked == qsPerTest then 
+		if questionsAsked == studentInfo.qsPerTest then 
 			lovelyMoon.disableState("solo")
 			lovelyMoon.enableState("summary")
 		elseif betweenTwoQuestions then			-- Time to ask the next question
@@ -107,7 +109,7 @@ function state:draw()
 	for i, button in ipairs(ansButtons) do
 		button:draw()
 	end
-	if questionsAsked ~= qsPerTest then
+	if questionsAsked ~= studentInfo.qsPerTest then
 		love.graphics.print(questions[questionsAsked + 1][1], 100, 100)
 		love.graphics.print(questions[questionsAsked + 1][2], 100, 150)
 		love.graphics.print(questions[questionsAsked + 1][3], 100, 200)

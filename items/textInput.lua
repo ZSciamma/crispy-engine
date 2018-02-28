@@ -7,16 +7,19 @@ local iBeamCursor = love.mouse.getSystemCursor("ibeam")
 local arrowCursor = love.mouse.getSystemCursor("arrow")
 local pointerMargin = 5
 local shiftsPressed = 0					-- Number of shift keys currently pressed
-local placeHolderText = "Enter Class Code"
 
-function textInput:new(x, y, width, height)
+function textInput:new(emptyText, x, y, width, height, secure)
 	self.on = true 						-- Is the field enabled?
 	self.x = x
 	self.y = y
 	self.width = width
-	self.height = height												
+	self.height = height	
+	self.secure = secure or false		-- True if we want the text to be hidden	
+	self.secureText = "" 				-- Only applicable if secure is true										
 	self.pointery0 = self.y + (self.height - pointerHeight) / 2		-- Place pointer in middle of field
 	self.pointerx0 = self.x + pointerMargin
+	self.emptyText = emptyText
+
 	self:reset()
 end
 
@@ -58,6 +61,14 @@ function textInput:update(dt)
 		end
 	end
 
+	-- Make secure text consist of the right number of *'s:
+	if self.secure and string.len(self.secureText) ~= string.len(self.text) then
+		self.secureText = ""
+		for i = 1,string.len(self.text) do
+			self.secureText = self.secureText.."*"
+		end
+	end
+
 	-- Toggle pointer visibility every second:
 	if self.pressed then self.pointerTimer = self.pointerTimer - dt end
 	if self.pointerTimer <= 0 then
@@ -71,13 +82,17 @@ function textInput:draw()
 
 	-- Draw box:
 	love.graphics.setColor(177, 177, 205)
-	love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)	-- Eventually make this a polygon to have rounded corners
+	--love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)	-- Eventually make this a polygon to have rounded corners
 
 	love.graphics.setColor(255, 255, 255)
-	love.graphics.rectangle("fill", self.x + 3, self.pointery0 - 5, self.width - 6, pointerHeight + 10)			-- Magic numbers for slight adjustment
+	--love.graphics.rectangle("fill", self.x + 3, self.pointery0 - 5, self.width - 6, pointerHeight + 10)			-- Magic numbers for slight adjustment
+	love.graphics.rectangle("fill", self.x + 3, self.pointery0 - 10, self.width - 6, pointerHeight + 20)			-- Magic numbers for slight adjustment
 	love.graphics.setColor(0, 0, 0)
 	if self.pressed then love.graphics.setColor(255, 0, 0) end
-	love.graphics.rectangle("line", self.x, self.y, self.width, self.height)	-- Is this really necessary?
+	--love.graphics.rectangle("line", self.x, self.y, self.width, self.height)	-- Is this really necessary?
+	love.graphics.rectangle("line", self.x + 3, self.pointery0 - 10, self.width - 6, pointerHeight + 20)			-- Magic numbers for slight adjustment
+
+	--love.graphics.rectangle("line", self.x, self.y, self.width, self.height)	-- Is this really necessary?
 	love.graphics.setColor(0, 0, 0)
 	if self.pressed then
 		--love.graphics.rectangle("line", self.x, self.pointery0 - 5, self.width, pointerHeight + 10)
@@ -90,11 +105,15 @@ function textInput:draw()
 	end
 
 	-- Print text:
-	love.graphics.print(self.text, self.pointerx0, self.pointery0 + 2)
+	if self.secure then
+		love.graphics.print(self.secureText, self.pointerx0, self.pointery0 + 2)
+	else
+		love.graphics.print(self.text, self.pointerx0, self.pointery0 + 2)
+	end
 
 	if string.len(self.text) == 0 then
 		love.graphics.setColor(177, 177, 205)
-		love.graphics.print(placeHolderText, self.pointerx0, self.pointery0 + 2)
+		love.graphics.print(self.emptyText, self.pointerx0, self.pointery0 + 2)
 	end
 end
 
@@ -122,6 +141,8 @@ end
 function textInput:keypressed(key)
 	if not self.on then return end
 
+	local length = string.len(self.text)
+
 	if key == "lshift" or key == "rshift" then 
 		shiftsPressed = shiftsPressed + 1
 	elseif not self.pressed then return 
@@ -133,13 +154,13 @@ function textInput:keypressed(key)
 		self.pointerIndex = self.pointerIndex - 1
 		-- remove text before pointer
 	elseif key == "right" then
-		if self.pointerIndex >= string.len(self.text) then return end
+		if self.pointerIndex >= length then return end
 		self.pointerIndex = self.pointerIndex + 1
 	elseif key == "left" then
 		if self.pointerIndex <= 0 then return end
 		self.pointerIndex = self.pointerIndex - 1
 	elseif key == "up" then self.pointerIndex = 0 return
-	elseif key == "down" then self.pointerIndex = string.len(self.text) return									
+	elseif key == "down" then self.pointerIndex = length return									
 	else 															-- Consider using a match here
 		if key == "space" then key = " " end
 		if shiftsPressed > 0 then key = string.upper(key) end
@@ -173,6 +194,14 @@ end
 
 function textInput:enable()
 	self.on = true
+end
+
+function textInput:secure()				-- Hide the text in it
+	self.secure = true
+end
+
+function textInput:unsecure()			-- Show the text in it
+	self.secure = false
 end
 
 function math.round(number)

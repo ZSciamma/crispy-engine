@@ -24,12 +24,12 @@ end
 
 
 function state:enable()
-	inTournamentMatch = false				-- If player goes through solo setup screen, the are playing alone and not in a tournament
+	studentInfo.inTournamentMatch = false				-- If player goes through solo setup screen, the are playing alone and not in a tournament
 end
 
 
 function state:disable()
-	qsPerTest = slider:value()
+	studentInfo.qsPerTest = slider:value()
 end
 
 

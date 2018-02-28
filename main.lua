@@ -11,39 +11,16 @@ require 'items.textInput'
 
 require 'comm'
 
-	--************ SAVE IN FILE: *************--
-	-- Make student input this upon opening the app:
+studentInfo = {}
 
-if not love.filesystem.exists("StudentInfoSave") then
-	studentInfo = {
-		new = true,					-- True if the user has never opened the app (and so not set the profile and class information)
-		myForename = "Zac",
-		mySurname = "Sciamma",
-		myEmail = "yo.yoyo@gmail.com",	
-		myPassword = "Blugalugalug",			-- Student's password, set before using the app
-		profileComplete = false,
-		joinedClass = false,				-- True if the student has joined a class
-		StudentID = "",					-- The student's ID within the class
-		teacherName = "",
-		className = "",
-		serverLoc = "localhost:6789"	-- Location of the server
-	}
-else
-	studentInfo = loadstring(love.filesystem.read("StudentInfoSave"))()
-end
-
-attemptedClassCode = ""			-- Name of the class the student's trying to join 
-foundClass = false				-- True if the student has joined or is attempting to join a class
-inTournamentMatch = false		-- Is the user currently doing a match to participate in a tournament?
-
-
+serverLoc = "localhost:6789"	-- Location of the server
 
 -- Some useful extension functions for strings:
 
 local metaT = getmetatable("")
 
 metaT.__add = function(string1, string2)	--  + 
-	return string1..", "..string2
+	return string1.."....."..string2
 end
 
 metaT.__mul = function(string1, toAdd)		--  * Adds t after the (i-1)th letter; toAdd = { letter, index }
@@ -68,8 +45,6 @@ states = {}
 
 intervals = { "Minor Second", "Major Second", "Minor Third", "Major Third", "Perfect Fourth", "Tritone", "Perfect Fifth", "Minor Sixth", "Major Sixth", "Minor Seventh", "Major Seventh", "Octave" }
 
-qsPerTest = 5						-- Global because it's needed in several states. Can be changed before each test.
-
 serverTime = 1
 serverTimer = serverTime
 
@@ -79,6 +54,9 @@ function love.load()
 
 	love.window.setTitle("Interval Training")
 
+	states.startup = lovelyMoon.addState("states.startup", "startup")
+	states.createAccount = lovelyMoon.addState("states.createAccount", "createAccount")
+	states.login = lovelyMoon.addState("states.login", "login")
 	states.menu = lovelyMoon.addState("states.menu", "menu")
 	states.solo = lovelyMoon.addState("states.solo", "solo")
 	states.multi = lovelyMoon.addState("states.multi", "multi")
@@ -89,18 +67,16 @@ function love.load()
 	states.summary = lovelyMoon.addState("states.summary", "summary")
 	states.soloSetup = lovelyMoon.addState("states.soloSetup", "soloSetup")
 
-	lovelyMoon.enableState("menu")
+	lovelyMoon.enableState("startup")
 
 	serv = Server()
-
-	serv.on = true
 end
 
 function love.update(dt)
 	lovelyMoon.events.update(dt)
-	if serverTimer <= 0 and foundClass then
+	if serverTimer <= 0 and serv.on then
 		serverTimer = serverTime
-		if serv.on then serv:update(dt) end
+		serv:update(dt)
 	else
 		serverTimer = serverTimer - dt
 	end
@@ -108,7 +84,7 @@ end
 
 function love.draw()
 	lovelyMoon.events.draw()
-	if serv.on then serv:draw() end
+	serv:draw()
 end
 
 function love.keyreleased(key)
@@ -129,6 +105,5 @@ function love.mousereleased(x, y)
 end 
 
 function love.quit()
-	love.filesystem.write("StudentInfoSave", table.serialize(studentInfo))
 	if serverPeer ~= 0 then serverPeer:disconnect_later(); serv:update() end
 end

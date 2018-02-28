@@ -5,7 +5,7 @@ local state = {}
 
 local backB = sButton("Back", 100, 100, 50, 50, "joinClass", "menu")
 local nextB = sButton("Next", love.graphics.getWidth() - 150, 100, 50, 50, "joinClass", function() join() end)
-local classInput = textInput(400, 200, 300, 100)		-- Used to input the name of the class to be joined
+local classInput = textInput("Enter Class Code", 400, 200, 300, 100)		-- Used to input the name of the class to be joined
 
 function state:new()
 	return lovelyMoon.new(self)
@@ -29,12 +29,13 @@ end
 
 function state:disable()
 	classInput:disable()
+	classInput.on = false
 end
 
 
 function state:update(dt)
 	classInput:update(dt)
-	if studentInfo.joinedClass == true then
+	if joinedClass == true then
 		lovelyMoon.disableState("joinClass")
 		lovelyMoon.enableState("class")
 	end
@@ -69,17 +70,17 @@ function state:mousereleased(x, y)
 end
 
 function join()
-	attemptedClassCode = classInput.text 	
+	--studentInfo.attemptedClassCode = classInput.text 	
 	--classLocation = "172.28.198.21:63176"	--"192.168.0.12:60472"		-- REMOVE LATER ONCE IT IS NO LONGER NEEDED FOR DEBUGING
-	foundClass = true
-	serv:reachClass()
+	serv:tryJoinClass(classInput.text)
 end
 
-function joinComplete()
+function joinComplete(className)
+	studentInfo.foundClass = true
+	studentInfo.joinClass = true
+	studentInfo.className = className
 	lovelyMoon.disableState("joinClass")
 	lovelyMoon.enableState("class")
-	foundClass = true
-	studentInfo.joinedClass = true
 end
 
 return state
