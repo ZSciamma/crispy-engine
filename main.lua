@@ -44,6 +44,7 @@ states = {}
 -- are 13 to 24 in the same order.
 
 intervals = { "Minor Second", "Major Second", "Minor Third", "Major Third", "Perfect Fourth", "Tritone", "Perfect Fifth", "Minor Sixth", "Major Sixth", "Minor Seventh", "Major Seventh", "Octave" }
+types = { "Asc", "Dsc"}				-- Ascending and descending intervals
 
 serverTime = 1
 serverTimer = serverTime
@@ -74,7 +75,8 @@ end
 
 function love.update(dt)
 	lovelyMoon.events.update(dt)
-	if serverTimer <= 0 and serv.on then
+	if not serv.on then return end
+	if serverTimer <= 0 then
 		serverTimer = serverTime
 		serv:update(dt)
 	else

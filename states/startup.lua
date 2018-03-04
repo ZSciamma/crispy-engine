@@ -22,6 +22,7 @@ function state:enable()
 		attemptedClassCode = "",		-- Name of the class the student's trying to join 
 		foundClass = false,				-- True if the student has joined or is attempting to join a class
 		className = "",
+		level = {},
 		inTournamentMatch = false,		-- Is the user currently doing a match to participate in a tournament?
 		qsPerTest = 5	
 	}

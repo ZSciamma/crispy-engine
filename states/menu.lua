@@ -79,6 +79,8 @@ function state:draw()
 	for i, keyPos in ipairs(blackKeys) do
 		love.graphics.rectangle("fill", 500, keyPos, 200, 30)				-- The length and width of the black keys remain constant
 	end
+
+	if studentInfo.level ~= {} then love.graphics.print(studentInfo.level, 800, 300) end
 end
 
 function state:keypressed(key, unicode)

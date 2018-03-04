@@ -39,7 +39,7 @@ end
 function state:draw()
 	backB:draw()
 	if newMatches then nextB:draw() end
-	if not studentInfo.className then 
+	if studentInfo.className == "" then 
 		love.graphics.print("Please go to the 'New Class' section to connect to a class!", 300, 275)
 	elseif not runningTournament then
 		love.graphics.print("No ongoing tournament. Ask your teacher to create one!", 300, 275)

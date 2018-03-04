@@ -39,23 +39,32 @@ function Server:connect()
 end
 
 function Server:CreateNewAccount(name, surname, email, password)
-    self:connect()
-
     Info = name + surname + email + password
     creatingNewAccount = true
+
+    if self.server then 
+        serverPeer:send("NewStudentAccount" + Info)
+    else
+        self:connect() 
+    end
 
     self.on = true
 end
 
 function Server:LoginToAccount(email, password)
-    self:connect()
-
     Info = email + password
     creatingNewAccount = false
+
+    if self.server then
+        serverPeer:send("StudentLogin" + Info)
+    else
+        self:connect()
+    end
 
     self.on = true
 end
 
+--[[
 function Server:reachClass()
     if self.setupComplete then return end
     host = enet.host_create()
@@ -66,10 +75,13 @@ function Server:reachClass()
         return true 
     end
 end
+--]]
 
 function Server:tryJoinClass(attemptedClassCode)
     self.on = true
+    if not serverPeer then message() end
     serverPeer:send("StudentClassJoin" + attemptedClassCode)
+    serv:update()
 end
 
 function Server:fetchTournamentInfo()                   -- Asks the central server for the student's next match. 
@@ -106,21 +118,21 @@ function respondToMessage(event)
     local first = messageTable[1]                   -- Find the description attached to the message
     table.remove(messageTable, 1)                   -- Remove the description, leaving only the rest of the data
     local messageResponses = {                      -- List of messages that can be received from the teacher and their handling functions
-        ["NewAccountAccept"] = function(peer, className) completeNewAccount(className) end,
-        ["NewAccountReject"] = function(peer, reason) accountFailed(reason) end,
-        ["LoginSuccess"] = function(peer, className) completeLogin(className) end,
+        ["NewAccountAccept"] = function(peer) CompleteNewAccount() end,
+        ["NewAccountReject"] = function(peer, reason) AccountFailed(reason) end,
+        ["LoginSuccess"] = function(peer, className, level) completeLogin(className, level) end,
         ["LoginFail"] = function(peer, reason) loginFailed(reason) end,
         ["JoinClassSuccess"] = function(peer, className) joinComplete(className) end,
         ["JoinClassFail"] = function(peer) end,
 
-        ["NewStudentAccept"] = function(peer, newID, className) AcceptID(newID, className) end, 
-        ["NewStudentReject"] = function(peer, reason) RejectNewStudent(reason) end, 
-        ["FailedToJoinClass"] = function(peer) studentInfo.joinedClass = false; foundClass = false; studentInfo.className = "" end,
-        ["WelcomeToClass"] = function(peer, newStudentID, TeacherForename, TeacherSurname) AcceptID(newStudentID, TeacherForename, TeacherSurname) end, --StudentID = newStudentID end
-        ["WelcomeBackStudent"] = function(peer) end,
-        ["NoCurrentTournament"] = function(peer) NoTournament() end,
-        ["NoNewGames"] = function(peer) NoMatches() end,
-        ["NextGame"] = function(peer, level1, level2) ReceiveMatchInfo(level1, level2) end
+        --["NewStudentAccept"] = function(peer, newID, className) AcceptID(newID, className) end, 
+        --["NewStudentReject"] = function(peer, reason) RejectNewStudent(reason) end, 
+        --["FailedToJoinClass"] = function(peer) studentInfo.joinedClass = false; foundClass = false; studentInfo.className = "" end,
+        --["WelcomeToClass"] = function(peer, newStudentID, TeacherForename, TeacherSurname) AcceptID(newStudentID, TeacherForename, TeacherSurname) end, --StudentID = newStudentID end
+        --["WelcomeBackStudent"] = function(peer) end,
+        --["NoCurrentTournament"] = function(peer) NoTournament() end,
+        --["NoNewGames"] = function(peer) NoMatches() end,
+        --["NextGame"] = function(peer, level1, level2) ReceiveMatchInfo(level1, level2) end
     }
     if messageResponses[first] then messageResponses[first](event.peer, unpack(messageTable))end
 end
@@ -135,6 +147,8 @@ function split(peerMessage)
         local c = string.sub(peerMessage, i, i)
         if c == '.' then
             dots = dots + 1
+        else
+            dots = 0
         end
         if dots == 5 then
             local word = string.sub(peerMessage, last, i-5)
@@ -152,6 +166,15 @@ function split(peerMessage)
     return messageTable
 end
 
+function CompleteNewAccount()
+    creatingNewAccount = false
+    completeNewAccount()
+end
+
+function AccountFailed(reason)
+    creatingNewAccount = false
+    accountFailed(reason)
+end
 
 
 
@@ -164,9 +187,8 @@ function AcceptID(newID, className)
     return true
 end
 
---]]
-
 function RejectNewStudent(reason)
     -- Tell the student their email is invalid
 end
 
+--]]

@@ -53,7 +53,7 @@ function state:update(dt)
 	if serverTried then
 		if serverWaitTimer <= 0 then 
 			serverTried = false
-			accountFailed("The server is currently unavaliable. Please try again later.")
+			AccountFailed("The server is currently unavaliable. Please try again later.")
 		else
 			serverWaitTimer = serverWaitTimer - dt
 		end
