@@ -18,13 +18,17 @@ end
 
 
 function state:enable()
-	studentInfo = {						-- Reset to this if the student logs out
+	-- When the user logs out, we want to reset these variables:
+	studentInfo = {						
 		attemptedClassCode = "",		-- Name of the class the student's trying to join 
 		foundClass = false,				-- True if the student has joined or is attempting to join a class
 		className = "",
-		level = {},
+		rating = {},
 		inTournamentMatch = false,		-- Is the user currently doing a match to participate in a tournament?
-		qsPerTest = 5	
+		record = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },			-- Which answers have been answered correctly and incorrectly	
+		ratingChange = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 	-- How much the rating has changed this session for each interval
+		qsPerTest = 5,
+		ratingSum = 0	
 	}
 end
 

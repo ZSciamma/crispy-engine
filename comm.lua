@@ -16,7 +16,7 @@ function Server:new()
 end
 
 function Server:update(dt)
-    event = host:service(100)
+    event = host:service(2)
     if event then
         table.insert(events, event)
         handleEvent(event)
@@ -120,7 +120,7 @@ function respondToMessage(event)
     local messageResponses = {                      -- List of messages that can be received from the teacher and their handling functions
         ["NewAccountAccept"] = function(peer) CompleteNewAccount() end,
         ["NewAccountReject"] = function(peer, reason) AccountFailed(reason) end,
-        ["LoginSuccess"] = function(peer, className, level) completeLogin(className, level) end,
+        ["LoginSuccess"] = function(peer, className, rating) completeLogin(className, rating) end,
         ["LoginFail"] = function(peer, reason) loginFailed(reason) end,
         ["JoinClassSuccess"] = function(peer, className) joinComplete(className) end,
         ["JoinClassFail"] = function(peer) end,

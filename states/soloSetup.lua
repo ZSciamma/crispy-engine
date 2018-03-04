@@ -25,6 +25,10 @@ end
 
 function state:enable()
 	studentInfo.inTournamentMatch = false				-- If player goes through solo setup screen, the are playing alone and not in a tournament
+	studentInfo.ratingSum = 0
+	for i,rating in ipairs(studentInfo.rating) do
+		studentInfo.ratingSum = studentInfo.ratingSum + rating
+	end
 end
 
 
@@ -42,6 +46,8 @@ function state:draw()
 	slider:draw()
 	nextB:draw()
 	backB:draw()
+
+	love.graphics.print("Rating: "..studentInfo.ratingSum, 550, 200)
 end
 
 function state:keypressed(key, unicode)

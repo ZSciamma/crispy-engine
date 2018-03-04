@@ -76,16 +76,18 @@ function state:update(dt)						-- Responsible for the specific timings
 		if userAnswer then						-- Runs if user has clicked a button
 			colourResults(userAnswer, math.abs(questions[questionsAsked + 1][3]))		-- Absolute because descending intervals are negative but still the same interval
 			disallowInput()
+			updateScore(userAnswer, questions[questionsAsked + 1][3])
 			waitingForAnswer = false
 			betweenTwoQuestions = true
 			questionsAsked = questionsAsked + 1
+
 		end
 	else
 		noteCountdown = noteCountdown - dt
 	end
 
 
-	if noteCountdown <= 0 then					-- Timer's up! Ask which event should happen
+	if noteCountdown <= 0 then					-- Time's up! Ask which event should happen
 		if questionsAsked == studentInfo.qsPerTest then 
 			lovelyMoon.disableState("solo")
 			lovelyMoon.enableState("summary")
@@ -105,7 +107,21 @@ function state:update(dt)						-- Responsible for the specific timings
 end
 
 
-function state:draw()		
+function state:draw()	
+	local a = ""
+	local b = ""
+	local c = ""
+
+	for i,j in ipairs(studentInfo.rating) do
+		a = a..j
+	end
+	for i,j in ipairs(studentInfo.record) do
+		b = b..j
+	end
+	for i,j in ipairs(studentInfo.ratingChange) do
+		c = c..j
+	end
+
 	for i, button in ipairs(ansButtons) do
 		button:draw()
 	end
@@ -114,6 +130,10 @@ function state:draw()
 		love.graphics.print(questions[questionsAsked + 1][2], 100, 150)
 		love.graphics.print(questions[questionsAsked + 1][3], 100, 200)
 	end
+
+	love.graphics.print("Rating: "..a, 50, 450)
+	love.graphics.print("Record: "..b, 50, 500)
+	love.graphics.print("Change: "..c, 50, 550)
 end
 
 function state:keypressed(key, unicode)
@@ -142,6 +162,7 @@ function calculateButtonCoordinates()					-- Calculates the position of each ans
 	end
 end
 
+--[[
 function createQuestion()								-- At the moment, this creates a random question. Later, it will use spaced repetition.
 	local int = love.math.random(-12, 12)				-- Interval to be tested; INTERVAL ~= 0 DUE TO 1-INDEXING
 	while int == 0 do
@@ -151,6 +172,30 @@ function createQuestion()								-- At the moment, this creates a random questio
 
 	table.insert(questions, { firstNote, firstNote + int, int })	-- Stores the following: { note1 number, note2 number, interval } in the questions table
 end
+--]]
+
+function createQuestion()
+	local prob = love.math.random()
+	local currentSum = 0
+	local intervalNumber = 0
+	for i,rating in ipairs(studentInfo.rating) do 					-- Ratio of probabilities equals ratio of ratings
+		currentSum = currentSum + rating
+		if prob < currentSum * (1 / studentInfo.ratingSum) then
+			intervalNumber = i
+			break
+		end
+	end
+	local interval = math.floor((intervalNumber + 1) / 2)
+	local lowerNote = love.math.random(1, #noteList - interval)
+	local higherNote = lowerNote + interval
+
+	if intervalNumber % 2 == 1 then			-- Figures out whether the interval should be ascending or descending (every other interval is asecnding)
+		table.insert(questions, { lowerNote, higherNote, interval })
+	else
+		table.insert(questions, { higherNote, lowerNote, -interval })
+	end
+end
+
 
 function playFirstNote(questionNumber)
 	notes[questions[questionNumber][1]].audio:play()
@@ -175,6 +220,41 @@ function colourResults(pressed, answer)					-- Colours buttons to show correct a
 	else 
 		ansButtons[pressed].incorrect = true
 		ansButtons[answer].correct = true
+	end
+end
+
+function updateScore(pressed, answer)
+	local index = 0
+	if answer > 0 then												-- For ascending intervals
+		index = 2 * answer - 1
+	else
+		index = 2 * math.abs(answer)
+	end
+
+	if pressed == math.abs(answer) then									-- If answer is correct
+		if studentInfo.record[index] < 0 then						-- Does this interval have a negative streak? Bring it back to 1
+			studentInfo.record[index] = 1
+		else
+			studentInfo.record[index] = studentInfo.record[index] + 1
+		end
+		if studentInfo.record[index] >= 3 then						-- Is it time to increase the rating?
+			if studentInfo.ratingChange[index] < 1 then				-- Rating hasn't already been increased higher than today's starting point, else don't increase it
+				studentInfo.ratingChange[index] = studentInfo.ratingChange[index] + 1
+				studentInfo.record[index] = 0						-- Positive streak goes back to 0
+			end
+		end
+	else
+		if studentInfo.record[index] > 0 then
+			studentInfo.record[index] = -1
+		else
+			studentInfo.record[index] = studentInfo.record[index] - 1
+		end
+		if studentInfo.record[index] <= -3 then 
+			if studentInfo.ratingChange[index] > -1 then
+				studentInfo.ratingChange[index] = studentInfo.ratingChange[index] - 1
+				studentInfo.record[index] = 0
+			end
+		end
 	end
 end
 

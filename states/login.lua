@@ -113,9 +113,9 @@ function validateLogin()
 	if failureReason then loginFailed(failureReason) end
 end
 
-function completeLogin(className, level)
+function completeLogin(className, rating)
 	studentInfo.className = className
-	studentInfo.level = decodeLevel(level)
+	studentInfo.rating = decodeRating(rating)
 	lovelyMoon.disableState("login")
 	lovelyMoon.enableState("menu")
 end
@@ -126,9 +126,9 @@ function loginFailed(reason)
 	serverWaitTimer = serverWaitTime
 end
 
-function decodeLevel(level)
+function decodeRating(rating)
 	local l = {}
-	for word in string.gmatch(level, "[^.]+") do
+	for word in string.gmatch(rating, "[^.]+") do
 		table.insert(l, tonumber(word))
 	end
 	return l
@@ -136,10 +136,10 @@ end
 
 --[[
 -- No point in storing the name of each interval.
-function decodeLevel(level)
+function decodeRating(rating)
 	local l = {}
 	local i = 0
-	for word in string.gmatch(level, "[^.]+") do
+	for word in string.gmatch(rating, "[^.]+") do
 		i = i + 1
 		local name = types[2 - (i % 2)].." "..intervals[i]
 		l[name] = tonumber(word)
