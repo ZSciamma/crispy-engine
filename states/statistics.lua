@@ -22,7 +22,7 @@ end
 
 
 function state:disable()
-
+	alert = Notification(500, 500, function() alert = 0 end)
 end
 
 

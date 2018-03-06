@@ -13,8 +13,6 @@ local ansButtons = {}							-- Stores the answer buttons
 
 local questions 								-- Stores each question for the current test as follows:   { interval no., starting pitch, wasCorrect }
 local questionsAsked 							-- Number of questions asked so far
-local noteList = { 'C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5', 'A#5', 'B5' }
-local notes = {}
 local notePause = 0.5							-- Pause between the two notes being played in a question
 local questionPause = 2							-- Pause between questions
 local noteCountdown 							-- Timer used throughout. Incremented in update(). 
@@ -35,13 +33,6 @@ function state:load()
 	for i, button in ipairs(ansButtonCoords) do
 		table.insert(ansButtons, ansButton(intervals[i], button[1], button[2], buttonRadius))
 	end
-
-	for i,note in ipairs(noteList) do
-		table.insert(notes, {
-			name = note,
-			audio = love.audio.newSource('notes/'..note..'.ogg')
-		})
-	end
 end
 
 
@@ -51,10 +42,6 @@ end
 
 function state:enable()
 	questionsAsked = 0							-- Reset upon arrival
-	questions = {}
-	for i = 0, studentInfo.qsPerTest do
-		createQuestion()
-	end
 
 	betweenTwoQuestions = true
 	waitingForAnswer = false
@@ -89,7 +76,7 @@ function state:update(dt)						-- Responsible for the specific timings
 
 	if noteCountdown <= 0 then					-- Time's up! Ask which event should happen
 		if questionsAsked == studentInfo.qsPerTest then 
-			lovelyMoon.disableState("solo")
+			lovelyMoon.disableState("test")
 			lovelyMoon.enableState("summary")
 		elseif betweenTwoQuestions then			-- Time to ask the next question
 			clearButtons()
@@ -174,27 +161,7 @@ function createQuestion()								-- At the moment, this creates a random questio
 end
 --]]
 
-function createQuestion()
-	local prob = love.math.random()
-	local currentSum = 0
-	local intervalNumber = 0
-	for i,rating in ipairs(studentInfo.rating) do 					-- Ratio of probabilities equals ratio of ratings
-		currentSum = currentSum + rating
-		if prob < currentSum * (1 / studentInfo.ratingSum) then
-			intervalNumber = i
-			break
-		end
-	end
-	local interval = math.floor((intervalNumber + 1) / 2)
-	local lowerNote = love.math.random(1, #noteList - interval)
-	local higherNote = lowerNote + interval
 
-	if intervalNumber % 2 == 1 then			-- Figures out whether the interval should be ascending or descending (every other interval is asecnding)
-		table.insert(questions, { lowerNote, higherNote, interval })
-	else
-		table.insert(questions, { higherNote, lowerNote, -interval })
-	end
-end
 
 
 function playFirstNote(questionNumber)
@@ -256,6 +223,10 @@ function updateScore(pressed, answer)
 			end
 		end
 	end
+end
+
+function sendQuestions(_questions)						-- Called from other screens (soloSetup or multiSetup) to give the questions for this test.
+	questions = _questions
 end
 
 function clearButtons()									-- Resets all buttons so that only one button in the list ever has self.pressed = true

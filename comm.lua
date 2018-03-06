@@ -90,6 +90,14 @@ function Server:fetchTournamentInfo()                   -- Asks the central serv
    serverPeer:send("NextGame")
 end
 
+function Server:tryLogout(rating)
+    if not serverPeer then 
+        setAlert("confirmation", "The server cannot be found. Would you like to log out anyway?")
+    else
+        serverPeer:send("StudentLogout" + rating)
+    end
+end
+
 
 function SendInfo(peer, message, isStudent, ID)     -- Sends outgoing information. Also checks is peer is still online. NOT USED FOR NEW STUDENTS
     local user = IdentifyPeer(peer)
@@ -124,6 +132,7 @@ function respondToMessage(event)
         ["LoginFail"] = function(peer, reason) loginFailed(reason) end,
         ["JoinClassSuccess"] = function(peer, className) joinComplete(className) end,
         ["JoinClassFail"] = function(peer) end,
+        ["LogoutSuccess"] = function(peer) logoutComplete() end,
 
         --["NewStudentAccept"] = function(peer, newID, className) AcceptID(newID, className) end, 
         --["NewStudentReject"] = function(peer, reason) RejectNewStudent(reason) end, 

@@ -35,11 +35,11 @@ function state:enable()
 
 	menuButtonInfo = {
 		{ "Solo", "soloSetup" },			-- { Button text, state name }
-		{ "Multiplayer", "multi" },
+		{ "Multiplayer", "multiSetup" },
 		{ "Class", classStatus },			-- Directs the student to join a class or see their current class
 		{ "Options", "options" },
 		{ "Statistics", "stats" },
-		{ "Quit", function() love.event.quit() end }
+		{ "Log Out", function() logout() end }
 		--{ "Quit", 400, 450, 300, 50, function() love.event.quit() end }
 	}
 
@@ -101,6 +101,30 @@ function state:mousereleased(x, y)
 	for i, button in ipairs(menuButtons) do
 		button:mousereleased(x, y)
 	end
+end
+
+function logout()					-- When the logout button is pressed, the program attempts to log out
+	updateRatings()
+	local encodedRating = encodeRatings()
+	serv:tryLogout(encodedRating)
+end
+
+function logoutComplete()			-- When the server confirms the logout, the program returns to the startup screen.
+	lovelyMoon.switchState("menu", "startup")
+end
+
+function updateRatings()			-- Updates the student's ratings depending on their progress that day.
+	for i,j in ipairs(studentInfo.rating) do
+		studentInfo.rating[i] = studentInfo.rating[i] + studentInfo.ratingChange[i]
+	end
+end
+
+function encodeRatings()
+	local encoded = ""
+	for i,j in ipairs(studentInfo.rating) do
+		encoded = encoded.."."..j
+	end
+	return encoded
 end
 
 

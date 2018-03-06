@@ -50,13 +50,17 @@ end
 
 -- Ensures the circle pointer places itself on one of the slider's nodes:
 function Slider:adjustCircle()	
-	r = (self.cX - self.x) % nodeDist								-- Checks how far the pointer is from a node
+	r = (self.cX - self.x) % nodeDist				-- Checks how far the pointer is from a node
 	if r == 0 then return end
-	if r < nodeDist / 2 then										-- Moves pointer to nearest node
+	if r < nodeDist / 2 then						-- Moves pointer to nearest node
 		self.cX = self.cX - r
 	else 
 		self.cX = self.cX + nodeDist - r
 	end
+
+	if self.cX <= self.x then 						-- Reposition to first node if pointer is on 0 (you can't have 0 questions in a test)
+		self.cX = self.x + nodeDist 
+	end			
 	return
 end
 
