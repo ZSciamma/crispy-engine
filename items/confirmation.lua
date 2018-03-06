@@ -1,46 +1,34 @@
-Confirmation = Object:extend()
+Confirmation = Notification:extend()
 
 local buttonWidth = 200
 local buttonHeight = 50
-local buttonMargin = 25
+local buttonSpacing = 25				-- Space between the buttons
+local buttonMarginY = 25			-- Space between bottom of the popup and the buttons
 
-function Confirmation:new(width, height)
-	self.width = width
-	self.height = height
-	self.x = (love.graphics.getWidth() - self.width) / 2
-	self.y = (love.graphics.getHeight() - self.height) / 2
 
+function Confirmation:new(width, height, accept, reject)
+	Confirmation.super.new(self, width, height)
 	self.buttons = {}
-
+	table.insert(self.buttons, sButton("No", self.x + (self.width - buttonSpacing) / 2 - buttonWidth, self.y + self.height - buttonHeight - buttonMarginY, buttonWidth, buttonHeight, "state", function() reject() end))
+	table.insert(self.buttons, sButton("Yes", self.x + (self.width + buttonSpacing) / 2, self.y + self.height - buttonHeight - buttonMarginY, buttonWidth, buttonHeight, "state", function() accept() end))
 end
 
 
 function Confirmation:update(dt)
-
+	Confirmation.super.update(self, dt)
 end
 
 
 function Confirmation:draw()
-	love.graphics.setColor(255, 255, 255)
-	love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
-	love.graphics.setColor(0, 0, 0)
-	love.graphics.rectangle("line", self.x, self.y, self.width, self.height)			-- Outline
-
-	for i,button in ipairs(self.buttons) do
-		button:draw()
-	end
+	Confirmation.super.draw(self)
 end 
 
 
 function Confirmation:mousepressed(x, y)
-	for i,button in ipairs(self.buttons) do
-		button:mousepressed(x, y)
-	end
+	Confirmation.super.mousepressed(self, x, y)
 end
 
 
 function Confirmation:mousereleased(x, y)
-	for i,button in ipairs(self.buttons) do
-		button:mousereleased(x, y)
-	end
+	Confirmation.super.mousereleased(self, x, y)
 end

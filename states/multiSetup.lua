@@ -1,7 +1,7 @@
 local state = {}
 
-local backB = sButton("Back", 100, 100, 50, 50, "multiTest", "menu")
-local nextB = sButton("Play Match", love.graphics.getWidth() - 150, 100, 50, 50, "multiTest", function() PlayMatch() end)
+local backB = sButton("Back", 100, 100, 50, 50, "multiSetup", "menu")
+local nextB = sButton("Play Match", love.graphics.getWidth() - 150, 100, 50, 50, "multiSetup", function() PlayMatch() end)
 
 local tournamentReady = false 				-- Is the student ready for a tournament (eg. have they joined a class)?
 local runningTournament = false 			-- Is the student currently enrolled in a tournament?

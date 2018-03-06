@@ -22,7 +22,7 @@ end
 
 
 function state:disable()
-
+	alert = Confirmation(500, 500, function() lovelyMoon.switchState("menu", "options"); alert = 0 end, function() alert = 0 end)
 end
 
 

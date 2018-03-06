@@ -2,7 +2,7 @@ textInput = Object:extend()
 
 local pointerTime = 0.6					-- How much time pointer stays onscreen
 local pointerHeight = 15
-local letterWidth = 7
+local letterWidth = 9
 local iBeamCursor = love.mouse.getSystemCursor("ibeam")
 local arrowCursor = love.mouse.getSystemCursor("arrow")
 local pointerMargin = 5

@@ -8,8 +8,8 @@ require 'items.stateButton'
 require 'items.ansButton'
 require 'items.slider'
 require 'items.textInput'
-require 'items.confirmation'
 require 'items.notification'
+require 'items.confirmation'
 
 require 'comm'
 
@@ -60,6 +60,9 @@ function love.load()
 	love.graphics.setBackgroundColor(66, 167, 244)
 
 	love.window.setTitle("Interval Training")
+
+	font = love.graphics.newFont("RobotoMono-Regular.ttf", 15)
+	love.graphics.setFont(font)
 
 	states.startup = lovelyMoon.addState("states.startup", "startup")
 	states.createAccount = lovelyMoon.addState("states.createAccount", "createAccount")
