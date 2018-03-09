@@ -11,6 +11,8 @@ require 'items.textInput'
 require 'items.notification'
 require 'items.confirmation'
 
+require 'datastructures.queue'
+
 require 'comm'
 
 studentInfo = {}
@@ -50,10 +52,13 @@ types = { "Asc", "Dsc"}				-- Ascending and descending intervals
 noteList = { 'C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5', 'A#5', 'B5' }
 notes = {}
 
+NoAlertStates = { "test", "summary" }
 
-serverTime = 0.2
-serverTimer = serverTime
-alert = 0						-- The alert currently onscreen. 0 if no alert is present.
+ResponseDots = 5						-- How many dots separate data in responses?
+ServerTime = 0.2
+ServerTimer = ServerTime
+CurrentAlert = 0						-- The alert currently onscreen						
+alerts = Queue()						-- The queue of alerts to be shown to the user. Each of these may be a confirmation or a notification.
 
 function love.load()
 	love.window.setMode(1100, 600)
@@ -94,26 +99,32 @@ end
 function love.update(dt)
 	lovelyMoon.events.update(dt)
 	if not serv.on then return end
-	if serverTimer <= 0 then
-		serverTimer = serverTime
+	if ServerTimer <= 0 then
+		ServerTimer = ServerTime
 		serv:update(dt)
 	else
-		serverTimer = serverTimer - dt
+		ServerTimer = ServerTimer - dt
 	end
 
-	if alert ~= 0 then alert:update(dt) end
+	if CurrentAlert ~= 0 then CurrentAlert:update(dt) end
 end
 
 function love.draw()
 	lovelyMoon.events.draw()
 	serv:draw()
 
-	if alert ~= 0 then alert:draw() end
+	if CurrentAlert ~= 0 then CurrentAlert:draw() end
+
+
+
+
+	local alertNumber = alerts.length
+	love.graphics.print(alertNumber, 800, 200)
 end
 
 function love.keyreleased(key)
-	-- Deal with alerts onscreen:
-	if alert ~= 0 then
+	-- Deal with alert onscreen:
+	if CurrentAlert ~= 0 then
 		return
 	end
 	-- No alerts:
@@ -122,8 +133,8 @@ end
 
 
 function love.keypressed(key)
-	-- Deal with alerts onscreen:
-	if alert ~= 0 then
+	-- Deal with alert onscreen:
+	if CurrentAlert ~= 0 then
 		return
 	end
 	-- No alerts:
@@ -131,9 +142,9 @@ function love.keypressed(key)
 end
 
 function love.mousepressed(x, y)
-	-- Deal with alerts onscreen:
-	if alert ~= 0 then
-		alert:mousepressed(x, y)
+	-- Deal with alert onscreen:
+	if CurrentAlert ~= 0 then
+		CurrentAlert:mousepressed(x, y)
 		return
 	end
 	-- No alerts:
@@ -141,9 +152,9 @@ function love.mousepressed(x, y)
 end
 
 function love.mousereleased(x, y)
-	-- Deal with alerts onscreen:
-	if alert ~= 0 then
-		alert:mousereleased(x, y)
+	-- Deal with alert onscreen:
+	if CurrentAlert ~= 0 then
+		CurrentAlert:mousereleased(x, y)
 		return
 	end
 	-- No alerts:
@@ -153,3 +164,34 @@ end
 function love.quit()
 	if serverPeer ~= 0 then serverPeer:disconnect_later(); serv:update() end
 end
+
+
+function addAlert(message, width, height, confirmFunc, rejectFunc)			-- Type is 'notification' or 'confirmation'
+	local newAlert
+	if confirmFunc then			-- confirmFunc is nil unless the alert is a confirmation alert.
+		newAlert = Confirmation(width, height, confirmFunc, rejectFunc)
+	else 
+		newAlert = Notification(width, height)
+	end
+
+	alerts:enqueue(newAlert)
+	checkAlertQueue()
+end
+
+function checkAlertQueue()				-- Checks whether it is appropriate to send the next alert in the queue
+	if CurrentAlert ~= 0 then return false end 			-- Return if an alert is already onscreen
+	for i,s in ipairs(NoAlertStates) do
+		if lovelyMoon.isStateEnabled(s) then 
+			return false
+		end
+	end
+	CurrentAlert = alerts:dequeue()			-- 0 if the alert queue is empty
+	return true
+end
+
+function voidAlert()					-- Throws away the current alert when the user is done with it
+	if checkAlertQueue() then return end
+	CurrentAlert = 0
+end
+
+

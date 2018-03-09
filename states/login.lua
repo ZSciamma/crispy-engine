@@ -116,8 +116,7 @@ end
 function completeLogin(className, rating)
 	studentInfo.className = className
 	studentInfo.rating = decodeRating(rating)
-	lovelyMoon.disableState("login")
-	lovelyMoon.enableState("menu")
+	lovelyMoon.switchState("login", "menu")
 end
 
 function loginFailed(reason)
@@ -128,8 +127,8 @@ end
 
 function decodeRating(rating)
 	local l = {}
-	for word in string.gmatch(rating, "[^.]+") do
-		table.insert(l, tonumber(word))
+	for rate in string.gmatch(rating, "[^.]+") do
+		table.insert(l, tonumber(rate))
 	end
 	return l
 end

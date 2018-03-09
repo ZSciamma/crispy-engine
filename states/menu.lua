@@ -71,7 +71,6 @@ function state:draw()
 		love.graphics.setColor(0, 0, 0)
 		love.graphics.rectangle("line", 400, keyPos, 300, 50)
 		love.graphics.rectangle("line", 400, keyPos, 300, 50)				-- Double rectangle outline looks sharper
-
 	end
 
 	love.graphics.setColor(0, 0, 0)
@@ -115,14 +114,21 @@ end
 
 function updateRatings()			-- Updates the student's ratings depending on their progress that day.
 	for i,j in ipairs(studentInfo.rating) do
-		studentInfo.rating[i] = studentInfo.rating[i] + studentInfo.ratingChange[i]
+		newRating = studentInfo.rating[i] + studentInfo.ratingChange[i]
+		if newRating >= 1 then		-- Limits ratings to greater than 0
+			studentInfo.rating[i] = newRating
+		end
 	end
 end
 
 function encodeRatings()
 	local encoded = ""
 	for i,j in ipairs(studentInfo.rating) do
-		encoded = encoded.."."..j
+		if i == 1 then 
+			encoded = j
+		else
+			encoded = encoded.."."..j
+		end
 	end
 	return encoded
 end

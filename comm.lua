@@ -124,6 +124,7 @@ end
 function respondToMessage(event)   
     local messageTable = split(event.data)
     local first = messageTable[1]                   -- Find the description attached to the message
+    command = first
     table.remove(messageTable, 1)                   -- Remove the description, leaving only the rest of the data
     local messageResponses = {                      -- List of messages that can be received from the teacher and their handling functions
         ["NewAccountAccept"] = function(peer) CompleteNewAccount() end,
@@ -133,6 +134,7 @@ function respondToMessage(event)
         ["JoinClassSuccess"] = function(peer, className) joinComplete(className) end,
         ["JoinClassFail"] = function(peer) end,
         ["LogoutSuccess"] = function(peer) logoutComplete() end,
+        ["NewTournament"] = function(peer) notifyStudentOfTournament() end,
 
         --["NewStudentAccept"] = function(peer, newID, className) AcceptID(newID, className) end, 
         --["NewStudentReject"] = function(peer, reason) RejectNewStudent(reason) end, 
@@ -148,7 +150,7 @@ end
 
 function split(peerMessage)
     local messageTable = {}
-    peerMessage = peerMessage.."....."
+    peerMessage = peerMessage..".....9"
     local length = #peerMessage
     local dots = 0
     local last = 1
@@ -157,21 +159,15 @@ function split(peerMessage)
         if c == '.' then
             dots = dots + 1
         else
-            dots = 0
-        end
-        if dots == 5 then
-            local word = string.sub(peerMessage, last, i-5)
-            last = i + 1
-            table.insert(messageTable, word)
+            if dots >= 5 then
+                local word = string.sub(peerMessage, last, i - 6)
+                if word == "0" then word = "" end                     -- Account for the server sending blank info
+                last = i 
+                table.insert(messageTable, word)
+            end
             dots = 0
         end
     end
-
-    --[[
-    for word in peerMessage:gmatch("[^,%s]+") do         -- Possibly write a better expression - try some basic email regex?
-        table.insert(messageTable, word)
-    end
-    ]]--
     return messageTable
 end
 
@@ -185,7 +181,9 @@ function AccountFailed(reason)
     accountFailed(reason)
 end
 
-
+function notifyStudentOfTournament()
+    addAlert("Your teacher has started a new tournament!", 500, 500)
+end
 
 --[[
 function AcceptID(newID, className)

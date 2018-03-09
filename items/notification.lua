@@ -4,7 +4,7 @@ local buttonWidth = 200
 local buttonHeight = 50
 local buttonMarginY = 25			-- Space between bottom of the popup and the button
 
-function Notification:new(width, height, accept)
+function Notification:new(width, height)		-- Potentially also insert an 'accept' function
 	self.width = width
 	self.height = height
 	self.x = (love.graphics.getWidth() - self.width) / 2
@@ -12,7 +12,9 @@ function Notification:new(width, height, accept)
 
 	self.buttons = {}
 
-	table.insert(self.buttons, sButton("Ok!", self.x + (self.width - buttonWidth) / 2, self.y + self.height - buttonHeight - buttonMarginY, buttonWidth, buttonHeight, "state", function() accept() end))
+	--table.insert(self.buttons, sButton("Ok!", self.x + (self.width - buttonWidth) / 2, self.y + self.height - buttonHeight - buttonMarginY, buttonWidth, buttonHeight, "state", function() accept() end))
+	--table.insert(self.buttons, sButton("Ok!", self.x + (self.width - buttonWidth) / 2, self.y + self.height - buttonHeight - buttonMarginY, buttonWidth, buttonHeight, "state", function() accept() end))
+	table.insert(self.buttons, sButton("Ok!", self.x + (self.width - buttonWidth) / 2, self.y + self.height - buttonHeight - buttonMarginY, buttonWidth, buttonHeight, "state", function() voidAlert() end))
 end
 
 

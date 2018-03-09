@@ -1,4 +1,4 @@
-local state = {}
+ local state = {}
 
 local backB = sButton("Back", 100, 100, 50, 50, "options", "menu")
 
@@ -22,7 +22,12 @@ end
 
 
 function state:disable()
-	alert = Confirmation(500, 500, function() lovelyMoon.switchState("menu", "options"); alert = 0 end, function() alert = 0 end)
+
+	--[[
+	-- DEBUG FOR THE QUEUE (CHECKS THAT ALERTS ARE ONLY SENT IN THE CORRECT STATES)
+	addAlert("hi", 500, 500, function() lovelyMoon.switchState("menu", "summary"); voidAlert() end, function() voidAlert() end)
+	addAlert("Oh!!", 500, 500, function() lovelyMoon.switchState("menu", "stats"); voidAlert(); addAlert("wow", 300, 300) end, function() voidAlert() end)
+	--]]
 end
 
 
