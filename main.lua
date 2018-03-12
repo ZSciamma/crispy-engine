@@ -115,11 +115,10 @@ function love.draw()
 
 	if CurrentAlert ~= 0 then CurrentAlert:draw() end
 
-
-
-
+	--[[
 	local alertNumber = alerts.length
 	love.graphics.print(alertNumber, 800, 200)
+	-]]
 end
 
 function love.keyreleased(key)
