@@ -24,12 +24,106 @@ local betweenTwoQuestions						-- True if the program is waiting to ask the next
 local waitingForAnswer							-- True if we are waiting for the user's answer to the last question
 
 
+-------------------- LOCAL FUNCTIONS:
+
+local function clearButtons()									-- Resets all buttons so that only one button in the list ever has self.pressed = true
+	for i, button in ipairs(ansButtons) do
+		button.pressed = false
+		button.correct = false
+		button.incorrect = false
+	end
+end
+
+local function allowInput()
+	for i, button in ipairs(ansButtons) do
+		button.on = true
+	end
+end
+
+local function disallowInput()
+	for i, button in ipairs(ansButtons) do 
+		button.on = false
+	end
+end
+
+local function exponentialFunction(x)
+	if x >= 1 then 
+		return Math.exp(1 - x) 
+	elseif x >= 0 then 
+		return 0 
+	end
+end
+
+local function playFirstNote(questionNumber)
+	notes[questions[questionNumber][1]].audio:play()
+end
+
+local function playSecondNote(questionNumber)
+	notes[questions[questionNumber][2]].audio:play()
+end
+
+local function findPressed()									-- Returns the number of the first button in the list to have been recently pressed by the user
+	for i, button in ipairs(ansButtons) do
+		if button.pressed == true then
+			return i
+		end
+	end
+	return nil
+end
+
+local function colourResults(pressed, answer)					-- Colours buttons to show correct and incorrect answers
+	if pressed == answer then
+		ansButtons[pressed].correct = true
+	else 
+		ansButtons[pressed].incorrect = true
+		ansButtons[answer].correct = true
+	end
+end
+
+local function updateScore(pressed, answer)
+	local index = 0
+	if answer > 0 then												-- For ascending intervals
+		index = 2 * answer - 1
+	else
+		index = 2 * math.abs(answer)
+	end
+
+	if pressed == math.abs(answer) then									-- If answer is correct
+		if studentInfo.record[index] < 0 then						-- Does this interval have a negative streak? Bring it back to 1
+			studentInfo.record[index] = 1
+		else
+			studentInfo.record[index] = studentInfo.record[index] + 1
+		end
+		if studentInfo.record[index] >= 3 then						-- Is it time to increase the rating?
+			if studentInfo.ratingChange[index] < 1 then				-- Rating hasn't already been increased higher than today's starting point, else don't increase it
+				studentInfo.ratingChange[index] = studentInfo.ratingChange[index] + 1
+				studentInfo.record[index] = 0						-- Positive streak goes back to 0
+			end
+		end
+	else
+		if studentInfo.record[index] > 0 then
+			studentInfo.record[index] = -1
+		else
+			studentInfo.record[index] = studentInfo.record[index] - 1
+		end
+		if studentInfo.record[index] <= -3 then 
+			if studentInfo.ratingChange[index] > -1 then
+				studentInfo.ratingChange[index] = studentInfo.ratingChange[index] - 1
+				studentInfo.record[index] = 0
+			end
+		end
+	end
+end
+
+
+-------------------- GLOBAL FUNCTIONS:
+
 function state:new()
 	return lovelyMoon.new(self)
 end
 
 function state:load()
-	calculateButtonCoordinates()
+	CalculateButtonCoordinates()
 	for i, button in ipairs(ansButtonCoords) do
 		table.insert(ansButtons, ansButton(intervals[i], button[1], button[2], buttonRadius))
 	end
@@ -47,8 +141,6 @@ function state:enable()
 	waitingForAnswer = false
 
 	noteCountdown = 1							-- First question will start 1 second after user's arrival.
-
-	
 end
 
 
@@ -142,7 +234,7 @@ function state:mousereleased(x, y)
 	end
 end
 
-function calculateButtonCoordinates()					-- Calculates the position of each answer button, placing them like numbers on a clock
+function CalculateButtonCoordinates()					-- Calculates the position of each answer button, placing them like numbers on a clock
 	for i = 1, 12 do
 		local angle = math.pi * (1/2 - i/6)				-- math.pi / 2 - math.pi * i / 6
 		table.insert(ansButtonCoords, { centerX + clockRadius * math.cos(angle), centerY - clockRadius * math.sin(angle) })
@@ -162,100 +254,11 @@ end
 --]]
 
 
-
-
-function playFirstNote(questionNumber)
-	notes[questions[questionNumber][1]].audio:play()
-end
-
-function playSecondNote(questionNumber)
-	notes[questions[questionNumber][2]].audio:play()
-end
-
-function findPressed()									-- Returns the number of the first button in the list to have been recently pressed by the user
-	for i, button in ipairs(ansButtons) do
-		if button.pressed == true then
-			return i
-		end
-	end
-	return nil
-end
-
-function colourResults(pressed, answer)					-- Colours buttons to show correct and incorrect answers
-	if pressed == answer then
-		ansButtons[pressed].correct = true
-	else 
-		ansButtons[pressed].incorrect = true
-		ansButtons[answer].correct = true
-	end
-end
-
-function updateScore(pressed, answer)
-	local index = 0
-	if answer > 0 then												-- For ascending intervals
-		index = 2 * answer - 1
-	else
-		index = 2 * math.abs(answer)
-	end
-
-	if pressed == math.abs(answer) then									-- If answer is correct
-		if studentInfo.record[index] < 0 then						-- Does this interval have a negative streak? Bring it back to 1
-			studentInfo.record[index] = 1
-		else
-			studentInfo.record[index] = studentInfo.record[index] + 1
-		end
-		if studentInfo.record[index] >= 3 then						-- Is it time to increase the rating?
-			if studentInfo.ratingChange[index] < 1 then				-- Rating hasn't already been increased higher than today's starting point, else don't increase it
-				studentInfo.ratingChange[index] = studentInfo.ratingChange[index] + 1
-				studentInfo.record[index] = 0						-- Positive streak goes back to 0
-			end
-		end
-	else
-		if studentInfo.record[index] > 0 then
-			studentInfo.record[index] = -1
-		else
-			studentInfo.record[index] = studentInfo.record[index] - 1
-		end
-		if studentInfo.record[index] <= -3 then 
-			if studentInfo.ratingChange[index] > -1 then
-				studentInfo.ratingChange[index] = studentInfo.ratingChange[index] - 1
-				studentInfo.record[index] = 0
-			end
-		end
-	end
-end
-
-function sendQuestions(_questions)						-- Called from other screens (soloSetup or multiSetup) to give the questions for this test.
+function SendQuestions(_questions)						-- Called from other screens (soloSetup or multiSetup) to give the questions for this test.
 	questions = _questions
 end
 
-function clearButtons()									-- Resets all buttons so that only one button in the list ever has self.pressed = true
-	for i, button in ipairs(ansButtons) do
-		button.pressed = false
-		button.correct = false
-		button.incorrect = false
-	end
-end
 
-function allowInput()
-	for i, button in ipairs(ansButtons) do
-		button.on = true
-	end
-end
-
-function disallowInput()
-	for i, button in ipairs(ansButtons) do 
-		button.on = false
-	end
-end
-
-function exponentialFunction(x)
-	if x >= 1 then 
-		return Math.exp(1 - x) 
-	elseif x >= 0 then 
-		return 0 
-	end
-end
 
 return state
 

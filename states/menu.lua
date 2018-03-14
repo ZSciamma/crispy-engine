@@ -12,6 +12,20 @@ whiteKeys = { 0, 50, 100, 450, 500, 550 }
 blackKeys = { 35, 90, 180, 240, 330, 385, 440, 530, 590 }
 
 
+-------------------- LOCAL FUNCTIONS:
+
+local function updateRatings()			-- Updates the student's ratings depending on their progress that day.
+	for i,j in ipairs(studentInfo.rating) do
+		newRating = studentInfo.rating[i] + studentInfo.ratingChange[i]
+		if newRating >= 1 then		-- Limits ratings to greater than 0
+			studentInfo.rating[i] = newRating
+		end
+	end
+end
+
+
+-------------------- GLOBAL FUNCTIONS:
+
 function state:new()
 	return lovelyMoon.new(self)
 
@@ -39,7 +53,7 @@ function state:enable()
 		{ "Class", classStatus },			-- Directs the student to join a class or see their current class
 		{ "Options", "options" },
 		{ "Statistics", "stats" },
-		{ "Log Out", function() logout() end }
+		{ "Log Out", function() Logout() end }
 		--{ "Quit", 400, 450, 300, 50, function() love.event.quit() end }
 	}
 
@@ -102,26 +116,17 @@ function state:mousereleased(x, y)
 	end
 end
 
-function logout()					-- When the logout button is pressed, the program attempts to log out
+function Logout()					-- When the logout button is pressed, the program attempts to log out
 	updateRatings()
-	local encodedRating = encodeRatings()
+	local encodedRating = EncodeRatings()
 	serv:tryLogout(encodedRating)
 end
 
-function logoutComplete()			-- When the server confirms the logout, the program returns to the startup screen.
+function LogoutComplete()			-- When the server confirms the logout, the program returns to the startup screen.
 	lovelyMoon.switchState("menu", "startup")
 end
 
-function updateRatings()			-- Updates the student's ratings depending on their progress that day.
-	for i,j in ipairs(studentInfo.rating) do
-		newRating = studentInfo.rating[i] + studentInfo.ratingChange[i]
-		if newRating >= 1 then		-- Limits ratings to greater than 0
-			studentInfo.rating[i] = newRating
-		end
-	end
-end
-
-function encodeRatings()
+function EncodeRatings()
 	local encoded = ""
 	for i,j in ipairs(studentInfo.rating) do
 		if i == 1 then 

@@ -11,6 +11,34 @@ local slider = Slider(300, 400, 500)
 
 local questions 										-- Holds the questions to be asked in solo mode
 
+
+-------------------- LOCAL FUNCTIONS:
+
+local function createQuestion()
+	local prob = love.math.random()
+	local currentSum = 0
+	local intervalNumber = 0
+	for i,rating in ipairs(studentInfo.rating) do 					-- Ratio of probabilities equals ratio of ratings
+		currentSum = currentSum + rating
+		if prob < currentSum * (1 / studentInfo.ratingSum) then
+			intervalNumber = i
+			break
+		end
+	end
+	local interval = math.floor((intervalNumber + 1) / 2)
+	local lowerNote = love.math.random(1, #noteList - interval)
+	local higherNote = lowerNote + interval
+
+	if intervalNumber % 2 == 1 then			-- Figures out whether the interval should be ascending or descending (every other interval is asecnding)
+		table.insert(questions, { lowerNote, higherNote, interval })
+	else
+		table.insert(questions, { higherNote, lowerNote, -interval })
+	end
+end
+
+
+-------------------- GLOBAL FUNCTIONS:
+
 function state:new()
 	return lovelyMoon.new(self)
 end
@@ -40,7 +68,7 @@ function state:disable()
 	for i = 0, studentInfo.qsPerTest do
 		createQuestion()
 	end
-	sendQuestions(questions)
+	SendQuestions(questions)
 end
 
 
@@ -76,28 +104,5 @@ function state:mousereleased(x, y)
 	nextB:mousereleased(x, y)
 	backB:mousereleased(x, y)
 end
-
-function createQuestion()
-	local prob = love.math.random()
-	local currentSum = 0
-	local intervalNumber = 0
-	for i,rating in ipairs(studentInfo.rating) do 					-- Ratio of probabilities equals ratio of ratings
-		currentSum = currentSum + rating
-		if prob < currentSum * (1 / studentInfo.ratingSum) then
-			intervalNumber = i
-			break
-		end
-	end
-	local interval = math.floor((intervalNumber + 1) / 2)
-	local lowerNote = love.math.random(1, #noteList - interval)
-	local higherNote = lowerNote + interval
-
-	if intervalNumber % 2 == 1 then			-- Figures out whether the interval should be ascending or descending (every other interval is asecnding)
-		table.insert(questions, { lowerNote, higherNote, interval })
-	else
-		table.insert(questions, { higherNote, lowerNote, -interval })
-	end
-end
-
 
 return state

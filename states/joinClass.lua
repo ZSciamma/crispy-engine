@@ -4,7 +4,7 @@ local state = {}
 -- State change buttons:
 
 local backB = sButton("Back", 100, 100, 50, 50, "joinClass", "menu")
-local nextB = sButton("Next", love.graphics.getWidth() - 150, 100, 50, 50, "joinClass", function() join() end)
+local nextB = sButton("Next", love.graphics.getWidth() - 150, 100, 50, 50, "joinClass", function() JoinClass() end)
 local classInput = textInput("Enter Class Code", 400, 200, 300, 100)		-- Used to input the name of the class to be joined
 
 function state:new()
@@ -69,13 +69,13 @@ function state:mousereleased(x, y)
 	classInput:mousereleased(x, y)
 end
 
-function join()
+function JoinClass()
 	--studentInfo.attemptedClassCode = classInput.text 	
 	--classLocation = "172.28.198.21:63176"	--"192.168.0.12:60472"		-- REMOVE LATER ONCE IT IS NO LONGER NEEDED FOR DEBUGING
 	serv:tryJoinClass(classInput.text)
 end
 
-function joinComplete(className)
+function JoinComplete(className)
 	studentInfo.foundClass = true
 	studentInfo.joinClass = true
 	studentInfo.className = className

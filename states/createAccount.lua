@@ -9,7 +9,7 @@ local accountInputs = {
 }
 
 local backB = sButton("Back", 100, 100, 50, 50, "createAccount", "startup")
-local enterB = sButton("Create Account", 400, 450, 300, 75, "createAccount", function() validateNewAccount() end)
+local enterB = sButton("Create Account", 400, 450, 300, 75, "createAccount", function() ValidateNewAccount() end)
 
 local errorReason = ""					-- Why the user's account creation failed
 local serverWaitTime = 5				-- Time after which the server is declared unavaliable
@@ -41,7 +41,7 @@ function state:disable()
 	for i,input in pairs(accountInputs) do
 		input:disable()
 	end
-	accountFailed()						-- Reset errors and timers
+	AccountFailed()						-- Reset errors and timers
 end
 
 
@@ -102,7 +102,7 @@ function state:mousereleased(x, y, button)
 	end
 end
 
-function validateNewAccount() 						-- Ask the server to create the new account
+function ValidateNewAccount() 						-- Ask the server to create the new account
 	local name = accountInputs.Name.text
 	local surname = accountInputs.Surname.text
 	local email = accountInputs.Email.text
@@ -110,28 +110,28 @@ function validateNewAccount() 						-- Ask the server to create the new account
 	local password2 = accountInputs.Password2.text
 
 	if name == "" or surname == "" or email == "" or password1 == "" or password2 == "" then
-		accountFailed("Please fill in all fields.")
+		AccountFailed("Please fill in all fields.")
 		return
 	elseif password1 ~= password2 then 
-		accountFailed("Please enter the same password in both password fields.")
+		AccountFailed("Please enter the same password in both password fields.")
 		return
 	end
 
-	accountFailed()
+	AccountFailed()
 	serverTried = true
 	serverWaitTimer = serverWaitTime
 
 
 	local failureReason = serv:CreateNewAccount(name, surname, email, password1)
-	if failureReason then accountFailed(failureReason) end
+	if failureReason then AccountFailed(failureReason) end
 end
 
-function completeNewAccount() 								-- Finish creating the new account (once server has accepted)
+function CompleteNewAccount() 								-- Finish creating the new account (once server has accepted)
 	lovelyMoon.disableState("createAccount")
 	lovelyMoon.enableState("startup")						-- Send student back to start to log in
 end
 
-function accountFailed(reason)
+function AccountFailed(reason)
 	errorReason = reason or ""
 
 	serverTried = false

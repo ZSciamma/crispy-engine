@@ -6,12 +6,26 @@ local loginInputs = {
 }
 
 local backB = sButton("Back", 100, 100, 50, 50, "login", "startup")
-local enterB = sButton("Log In", 400, 450, 300, 75, "login", function() validateLogin() end)
+local enterB = sButton("Log In", 400, 450, 300, 75, "login", function() ValidateLogin() end)
 
 local errorReason = ""					-- Why the user's account creation failed
 local serverWaitTime = 5				-- Time after which the server is declared unavaliable
 local serverWaitTimer = serverWaitTime
 local serverTried = false				-- Are we trying to connect to the server?
+
+
+-------------------- LOCAL FUNCTIONS:
+
+local function decodeRating(rating)
+	local l = {}
+	for rate in string.gmatch(rating, "[^.]+") do
+		table.insert(l, tonumber(rate))
+	end
+	return l
+end
+
+
+-------------------- GLOBAL FUNCTIONS:
 
 function state:new()
 	return lovelyMoon.new(self)
@@ -38,7 +52,7 @@ function state:disable()
 	for i,input in pairs(loginInputs) do
 		input:disable()
 	end
-	loginFailed() 					-- Reset errors and timers
+	LoginFailed() 					-- Reset errors and timers
 end
 
 
@@ -49,7 +63,7 @@ function state:update(dt)
 
 	if serverTried then
 		if serverWaitTimer <= 0 then 
-			loginFailed("The server is currently unavaliable. Please try again later.")
+			LoginFailed("The server is currently unavaliable. Please try again later.")
 		else
 			serverWaitTimer = serverWaitTimer - dt
 		end
@@ -97,41 +111,35 @@ function state:mousereleased(x, y, button)
 	end
 end
 
-function validateLogin()
+function ValidateLogin()
 	local email = loginInputs.Email.text
 	local password = loginInputs.Password.text
 	if email == "" or password == "" then
-		loginFailed("Please fill in all fields.")
+		LoginFailed("Please fill in all fields.")
 		return
 	end
 
-	loginFailed()
+	LoginFailed()
 	serverTried = true
 	serverWaitTimer = serverWaitTime
 
 	local failureReason = serv:LoginToAccount(email, password)
-	if failureReason then loginFailed(failureReason) end
+	if failureReason then LoginFailed(failureReason) end
 end
 
-function completeLogin(className, rating)
+function CompleteLogin(className, rating)
 	studentInfo.className = className
 	studentInfo.rating = decodeRating(rating)
 	lovelyMoon.switchState("login", "menu")
 end
 
-function loginFailed(reason)
+function LoginFailed(reason)
 	errorReason = reason or ""
 	serverTried = false
 	serverWaitTimer = serverWaitTime
 end
 
-function decodeRating(rating)
-	local l = {}
-	for rate in string.gmatch(rating, "[^.]+") do
-		table.insert(l, tonumber(rate))
-	end
-	return l
-end
+
 
 --[[
 -- No point in storing the name of each interval.
