@@ -13,9 +13,13 @@ local ansButtons = {}							-- Stores the answer buttons
 
 local questions 								-- Stores each question for the current test as follows:   { interval no., starting pitch, wasCorrect }
 local questionsAsked 							-- Number of questions asked so far
+local streak
 local notePause = 0.5							-- Pause between the two notes being played in a question
 local questionPause = 2							-- Pause between questions
 local noteCountdown 							-- Timer used throughout. Incremented in update(). 
+local answerTime 
+local totalScore
+local maxAnswerTime = 5
 
 
 -- Control:
@@ -71,6 +75,23 @@ local function findPressed()									-- Returns the number of the first button i
 	return nil
 end
 
+local function calculateAnswerScore(time)						-- Calculates the score the student gets for answering the question correctly. Answering immediately receives twice as many points as answering after 1 second
+	local fullScore = 1000										-- Score if question is answered almost immediately
+	local streakExtra = 100										-- Extra points per previous correct answer
+	local rawScore = 0
+	if time < 0.5 then 
+		rawScore = fullScore
+	elseif time > maxAnswerTime then 
+		rawScore = fullScore / 2
+	else
+		rawScore = fullScore * (1 - ((time / maxAnswerTime) / 2))
+	end
+
+	rawScore = rawScore + streakExtra * (math.min(streak, 5) - 1)		-- Streak limited to 5
+
+	return rawScore
+end
+
 local function colourResults(pressed, answer)					-- Colours buttons to show correct and incorrect answers
 	if pressed == answer then
 		ansButtons[pressed].correct = true
@@ -80,9 +101,11 @@ local function colourResults(pressed, answer)					-- Colours buttons to show cor
 	end
 end
 
-local function updateScore(pressed, answer)
+local function updateScore(pressed, answer, time)				-- Update the streak, interval ratings, and score of the student depending on whether their answer to the question was correct. Called after every question answer
 	local index = 0
-	if answer > 0 then												-- For ascending intervals
+	local questionScore
+
+	if answer > 0 then											-- For ascending intervals
 		index = 2 * answer - 1
 	else
 		index = 2 * math.abs(answer)
@@ -100,6 +123,10 @@ local function updateScore(pressed, answer)
 				studentInfo.record[index] = 0						-- Positive streak goes back to 0
 			end
 		end
+
+		streak = streak + 1
+		questionScore = calculateAnswerScore(time)					-- Calculate the score gained for this question
+
 	else
 		if studentInfo.record[index] > 0 then
 			studentInfo.record[index] = -1
@@ -112,7 +139,12 @@ local function updateScore(pressed, answer)
 				studentInfo.record[index] = 0
 			end
 		end
+
+		streak = 0
+		questionScore = 0
 	end
+
+	totalScore = Round(totalScore + questionScore)
 end
 
 
@@ -141,25 +173,31 @@ function state:enable()
 	waitingForAnswer = false
 
 	noteCountdown = 1							-- First question will start 1 second after user's arrival.
+
+	totalScore = 0
+	streak = 0
 end
 
 
 function state:disable()
 	clearButtons()
+	if studentInfo.inTournamentMatch then
+		serv:SendMatchResult(totalScore)
+	end
 end
 
 
 function state:update(dt)						-- Responsible for the specific timings
 	if  waitingForAnswer then					-- Check if timer should be running
 		local userAnswer = findPressed()
+		answerTime = answerTime + dt
 		if userAnswer then						-- Runs if user has clicked a button
 			colourResults(userAnswer, math.abs(questions[questionsAsked + 1][3]))		-- Absolute because descending intervals are negative but still the same interval
 			disallowInput()
-			updateScore(userAnswer, questions[questionsAsked + 1][3])
+			updateScore(userAnswer, questions[questionsAsked + 1][3], answerTime)
 			waitingForAnswer = false
 			betweenTwoQuestions = true
 			questionsAsked = questionsAsked + 1
-
 		end
 	else
 		noteCountdown = noteCountdown - dt
@@ -179,6 +217,7 @@ function state:update(dt)						-- Responsible for the specific timings
 			playSecondNote(questionsAsked + 1) 
 			waitingForAnswer = true
 			allowInput()
+			answerTime = 0
 			noteCountdown = questionPause
 		end
 		betweenTwoQuestions = not betweenTwoQuestions
@@ -213,6 +252,7 @@ function state:draw()
 	love.graphics.print("Rating: "..a, 50, 450)
 	love.graphics.print("Record: "..b, 50, 500)
 	love.graphics.print("Change: "..c, 50, 550)
+	love.graphics.print("Score: "..totalScore, 900, 100)
 end
 
 function state:keypressed(key, unicode)
@@ -256,6 +296,10 @@ end
 
 function SendQuestions(_questions)						-- Called from other screens (soloSetup or multiSetup) to give the questions for this test.
 	questions = _questions
+end
+
+function Round(x)
+	return math.floor(x * 1000 + 0.5) / 1000
 end
 
 

@@ -59,8 +59,10 @@ ServerTime = 0.2
 ServerTimer = ServerTime
 CurrentAlert = 0						-- The alert currently onscreen						
 alerts = Queue()						-- The queue of alerts to be shown to the user. Each of these may be a confirmation or a notification.
+LetterWidth = 9							-- The width of every letter in the font used
+LetterHeight = 8						-- Approximately the average height for letter
 
-function love.load()
+function love.load()					-- Callback function: called upon loading the program
 	love.window.setMode(1100, 600)
 	love.graphics.setBackgroundColor(66, 167, 244)
 
@@ -109,7 +111,7 @@ function love.update(dt)
 	if CurrentAlert ~= 0 then CurrentAlert:update(dt) end
 end
 
-function love.draw()
+function love.draw()					-- Callback function: called automatically every to draw everything onscreen
 	lovelyMoon.events.draw()
 	serv:draw()
 
@@ -168,9 +170,9 @@ end
 function addAlert(message, width, height, confirmFunc, rejectFunc)			-- Type is 'notification' or 'confirmation'
 	local newAlert
 	if confirmFunc then			-- confirmFunc is nil unless the alert is a confirmation alert.
-		newAlert = Confirmation(width, height, confirmFunc, rejectFunc)
+		newAlert = Confirmation(message, width, height, confirmFunc, rejectFunc)
 	else 
-		newAlert = Notification(width, height)
+		newAlert = Notification(message, width, height)
 	end
 
 	alerts:enqueue(newAlert)
@@ -189,8 +191,8 @@ function checkAlertQueue()				-- Checks whether it is appropriate to send the ne
 end
 
 function voidAlert()					-- Throws away the current alert when the user is done with it
-	if checkAlertQueue() then return end
 	CurrentAlert = 0
+	if checkAlertQueue() then return end
 end
 
 

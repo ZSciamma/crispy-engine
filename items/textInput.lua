@@ -120,7 +120,7 @@ end
 function textInput:mousepressed(x, y)		
 	if not self.on then return end
 
-	if x >= self.x and x <= self.x + self.width and y >= self.pointery0 and y <= self.pointery0 + pointerHeight then
+	if x >= self.x and x <= self.x + self.width and y >= self.y and y <= self.y + self.height then
 		self.active = true
 		self.pressed = true
 	else

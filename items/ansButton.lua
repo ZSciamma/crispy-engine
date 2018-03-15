@@ -12,6 +12,15 @@ function ansButton:new(text, x, y, radius)
 	self.x = x
 	self.y = y
 	self.radius = radius
+	if string.len(text) * LetterWidth < 2 * self.radius - 20 then
+		self.textX = self.x - math.floor(LetterWidth * string.len(text) / 2)
+		self.textY = self.y - LetterHeight
+		self.textLimit = string.len(self.text) * LetterWidth
+	else
+		self.textX = self.x - self.radius + 10
+		self.textY = self.y - LetterHeight - 15
+		self.textLimit = 2 * self.radius - 20
+	end
 	self.active = false
 	self.on = false								-- The buttons are only 'on' for a short period of time, during which the user can answer questions.	
 	self.pressed = false						-- The rest of the time, clicking the buttons will do nothing. By default, the buttons are off.
@@ -37,7 +46,7 @@ function ansButton:draw()
 	love.graphics.circle("fill", self.x, self.y, self.radius)
 	love.graphics.setColor(0, 0, 0)
 	love.graphics.circle("line", self.x, self.y, self.radius)
-	love.graphics.printf(self.text, self.x, self.y, 100, "center")
+	love.graphics.printf(self.text, self.textX, self.textY, self.textLimit, "center")
 end
 
 function ansButton:mousepressed(x, y)

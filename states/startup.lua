@@ -24,7 +24,9 @@ function state:enable()
 		foundClass = false,				-- True if the student has joined or is attempting to join a class
 		className = "",
 		rating = {},
-		inTournamentMatch = false,		-- Is the user currently doing a match to participate in a tournament?
+		tournament = nil,				-- Info about the student's current tournament. Nil if no tournament is available. { roundTime }
+		tournamentMatch = nil,			-- Info about the student's current match. Nil if no match is available:  { startDay, ratings1, ratings2 }
+		inTournamentMatch = false,
 		record = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },			-- Which answers have been answered correctly and incorrectly	
 		ratingChange = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 	-- How much the rating has changed this session for each interval
 		qsPerTest = 5,

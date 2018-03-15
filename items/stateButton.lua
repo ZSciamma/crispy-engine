@@ -54,6 +54,4 @@ function sButton:act()
 		lovelyMoon.disableState(self.s1)
 		lovelyMoon.enableState(self.s2)
 	end
-
-
 end

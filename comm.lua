@@ -37,7 +37,7 @@ local function split(peerMessage)
     return messageTable
 end
 
-local function completeNewAccount()
+local function completeNewAccount() 
     creatingNewAccount = false
     CompleteNewAccount()
 end
@@ -47,8 +47,24 @@ local function accountFailed(reason)
     AccountFailed(reason)
 end
 
-local function notifyStudentOfTournament(roundTime)
+local function notifyStudentOfTournament(roundTime, qsPerMatch)
     addAlert("Your teacher has started a new tournament!", 500, 500)
+    studentInfo.tournament = { RoundLength = RoundLength, QsPerMatch = qsPerMatch }
+end
+
+local function notifyStudentOfMatch(startDay, ratings1, ratings2)
+    addAlert("A new match is available!", 500, 500)
+    studentInfo.tournamentMatch = { StartDay = startDay, Ratings1 = ratings1, Ratings2 = ratings2 }
+end
+
+local function recordCurrentMatch(roundTime, qsPerMatch, startDay, ratings1, ratings2)  -- Record essential information about the current match and tournament. Sent by the server when the student logs in.
+    studentInfo.tournament = { RoundLength = roundTime, QsPerMatch = qsPerMatch }
+    studentInfo.tournamentMatch = { StartDay = startDay, Ratings1 = ratings1, Ratings2 = ratings2 }
+end
+
+local function notifyStudentOfBye()                 -- Inform the student that they have been given a bye for their next match (odd number of players in tournament only)
+    addAlert("You've received a bye! No student was available for your next match, so you get 3 tournament points.", 500, 500)
+    studentInfo.tournamentMatch = nil
 end
 
 local function respondToMessage(event)   
@@ -64,7 +80,10 @@ local function respondToMessage(event)
         ["JoinClassSuccess"] = function(peer, className) JoinComplete(className) end,
         ["JoinClassFail"] = function(peer) end,
         ["LogoutSuccess"] = function(peer) LogoutComplete() end,
-        ["NewTournament"] = function(peer, roundTime) notifyStudentOfTournament(roundTime) end,
+        ["NewTournament"] = function(peer, roundTime, qsPerMatch) notifyStudentOfTournament(roundTime, qsPerMatch) end,
+        ["NewMatch"] = function(peer, roundTime, qsPerMatch, startDay, ratings1, ratings2) notifyStudentOfMatch(roundTime, qsPerMatch, startDay, ratings1, ratings2) end,
+        ["CurrentMatch"] = function(peer, roundTime, startDay, ratings1, ratings2) recordCurrentMatch(roundTime, startDay, ratings1, ratings2) end,
+        ["ByeReceived"] = function(peer) notifyStudentOfBye() end,
 
         --["NewStudentAccept"] = function(peer, newID, className) AcceptID(newID, className) end, 
         --["NewStudentReject"] = function(peer, reason) RejectNewStudent(reason) end, 
@@ -110,12 +129,14 @@ end
 
 
 function Server:draw()
+    ---[[
     --if not foundClass then return end                 -- Eventually uncomment when debugging is done
     love.graphics.setColor(0, 0, 0)
 
     for i, event in ipairs(events) do
         love.graphics.print(event.peer:index().." says "..event.data, 10, 200 + 15 * i)
     end
+    --]]
 end
 
 function Server:connect()
@@ -167,6 +188,14 @@ function Server:tryLogout(rating)
         setAlert("confirmation", "The server cannot be found. Would you like to log out anyway?")
     else
         serverPeer:send("StudentLogout" + rating)
+    end
+end
+
+function Server:sendMatchResult(score)
+    if not serverPeer then
+        addAlert("The server seems to be unavailable. Please ensure you are connected to wifi.", 500, 500)
+    else
+        serverPeer:send("StudentMatchFinished" + score)
     end
 end
 
