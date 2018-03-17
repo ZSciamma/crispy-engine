@@ -63,6 +63,10 @@ local function notifyStudentOfMatch(startDay, ratings1, ratings2, seed)
     studentInfo.tournamentMatch = { StartDay = startDay, Ratings1 = ratings1, Ratings2 = ratings2, Seed = seed }
 end
 
+local function recordCurrentTournament(roundTime, qsPerMatch)   -- Record information about the current tournament when the student logs in, regardless of whether or not they have a match
+    studentInfo.tournament = { RoundLength = roundTime, QsPerMatch = qsPerMatch}
+end
+
 local function recordCurrentMatch(roundTime, qsPerMatch, startDay, ratings1, ratings2, seed)  -- Record essential information about the current match and tournament. Sent by the server when the student logs in.
     ratings1 = DecodeRating(ratings1)
     ratings2 = DecodeRating(ratings2)
@@ -73,6 +77,7 @@ end
 local function notifyStudentOfBye()                 -- Inform the student that they have been given a bye for their next match (odd number of players in tournament only)
     addAlert("You've received a bye! No student was available for your next match, so you get 3 tournament points.", 500, 500)
     studentInfo.tournamentMatch = nil
+
 end
 
 local function respondToMessage(event)   
@@ -90,7 +95,8 @@ local function respondToMessage(event)
         ["LogoutSuccess"] = function(peer) LogoutComplete() end,
         ["NewTournament"] = function(peer, roundTime, qsPerMatch) notifyStudentOfTournament(roundTime, qsPerMatch) end,
         ["NewMatch"] = function(peer, roundTime, qsPerMatch, startDay, ratings1, ratings2, seed) notifyStudentOfMatch(roundTime, qsPerMatch, startDay, ratings1, ratings2, seed) end,
-        ["CurrentMatch"] = function(peer, roundTime, startDay, ratings1, ratings2, seed) recordCurrentMatch(roundTime, startDay, ratings1, ratings2, seed) end,
+        ["CurrentTournament"] = function(peer, roundTime, qsPerMatch) recordCurrentTournament(roundTime, qsPerMatch) end,
+        ["CurrentMatch"] = function(peer, roundTime, qsPerMatch, startDay, ratings1, ratings2, seed) recordCurrentMatch(roundTime, qsPerMatch, startDay, ratings1, ratings2, seed) end,
         ["ByeReceived"] = function(peer) notifyStudentOfBye() end,
 
         --["NewStudentAccept"] = function(peer, newID, className) AcceptID(newID, className) end, 
