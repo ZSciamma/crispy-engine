@@ -12,15 +12,13 @@ local slider = Slider(300, 400, 500)
 local questions 										-- Holds the questions to be asked in solo mode
 
 
--------------------- LOCAL FUNCTIONS:
-
-local function createQuestion()
+function CreateQuestion(questionTable, ratingTable, ratingSum)
 	local prob = love.math.random()
 	local currentSum = 0
 	local intervalNumber = 0
-	for i,rating in ipairs(studentInfo.rating) do 					-- Ratio of probabilities equals ratio of ratings
+	for i,rating in ipairs(ratingTable) do 					-- Ratio of probabilities equals ratio of ratings
 		currentSum = currentSum + rating
-		if prob < currentSum * (1 / studentInfo.ratingSum) then
+		if prob < currentSum * (1 / ratingSum) then
 			intervalNumber = i
 			break
 		end
@@ -30,14 +28,13 @@ local function createQuestion()
 	local higherNote = lowerNote + interval
 
 	if intervalNumber % 2 == 1 then			-- Figures out whether the interval should be ascending or descending (every other interval is asecnding)
-		table.insert(questions, { lowerNote, higherNote, interval })
+		table.insert(questionTable, { lowerNote, higherNote, interval })
 	else
-		table.insert(questions, { higherNote, lowerNote, -interval })
+		table.insert(questionTable, { higherNote, lowerNote, -interval })
 	end
+
+	return questionTable
 end
-
-
--------------------- GLOBAL FUNCTIONS:
 
 function state:new()
 	return lovelyMoon.new(self)
@@ -50,6 +47,7 @@ end
 
 
 function state:close()
+
 end
 
 
@@ -66,7 +64,7 @@ function state:disable()
 	studentInfo.qsPerTest = slider:value()
 	questions = {}
 	for i = 0, studentInfo.qsPerTest do
-		createQuestion()
+		questions = CreateQuestion(questions, studentInfo.rating, studentInfo.ratingSum)
 	end
 	SendQuestions(questions)
 end

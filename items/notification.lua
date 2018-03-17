@@ -39,8 +39,6 @@ function Notification:draw()
 	love.graphics.rectangle("line", self.x, self.y, self.width, self.height)			-- Outline
 
 	love.graphics.printf(self.text, self.textX, self.textY, self.textLimit, "center")
-	love.graphics.points(self.textX, self.textY)
-
 
 	for i,button in ipairs(self.buttons) do
 		button:draw()

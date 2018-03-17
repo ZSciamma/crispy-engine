@@ -14,18 +14,14 @@ local serverWaitTimer = serverWaitTime
 local serverTried = false				-- Are we trying to connect to the server?
 
 
--------------------- LOCAL FUNCTIONS:
 
-local function decodeRating(rating)
+function DecodeRating(rating)
 	local l = {}
 	for rate in string.gmatch(rating, "[^.]+") do
 		table.insert(l, tonumber(rate))
 	end
 	return l
 end
-
-
--------------------- GLOBAL FUNCTIONS:
 
 function state:new()
 	return lovelyMoon.new(self)
@@ -129,7 +125,7 @@ end
 
 function CompleteLogin(className, rating)
 	studentInfo.className = className
-	studentInfo.rating = decodeRating(rating)
+	studentInfo.rating = DecodeRating(rating)
 	lovelyMoon.switchState("login", "menu")
 end
 
@@ -143,7 +139,7 @@ end
 
 --[[
 -- No point in storing the name of each interval.
-function decodeRating(rating)
+function DecodeRating(rating)
 	local l = {}
 	local i = 0
 	for word in string.gmatch(rating, "[^.]+") do

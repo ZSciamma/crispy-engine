@@ -23,14 +23,14 @@ function state:enable()
 		attemptedClassCode = "",		-- Name of the class the student's trying to join 
 		foundClass = false,				-- True if the student has joined or is attempting to join a class
 		className = "",
-		rating = {},
+		rating = {},					-- The rating score for each interval
 		tournament = nil,				-- Info about the student's current tournament. Nil if no tournament is available. { roundTime }
 		tournamentMatch = nil,			-- Info about the student's current match. Nil if no match is available:  { startDay, ratings1, ratings2 }
 		inTournamentMatch = false,
-		record = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },			-- Which answers have been answered correctly and incorrectly	
+		record = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },		-- Which answers have been answered correctly and incorrectly	
 		ratingChange = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 	-- How much the rating has changed this session for each interval
 		qsPerTest = 5,
-		ratingSum = 0	
+		ratingSum = 0	 				-- Total sum of all ratings
 	}
 end
 

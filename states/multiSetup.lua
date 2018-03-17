@@ -3,34 +3,71 @@ local state = {}
 local backB = sButton("Back", 100, 100, 50, 50, "multiSetup", "menu")
 local nextB = sButton("Start Match", love.graphics.getWidth() - 150, 100, 50, 50, "multiSetup", "test")
 
+local questions
+
+
+-------------------- LOCAL FUNCTIONS:
+
+function CombineOpponentRatings(ratings1, ratings2)
+	for i,j in ipairs(ratings1) do
+		print(ratings1[i])
+	end
+	for i,j in ipairs(ratings2) do
+		print(ratings2[i])
+	end
+	
+	local combinedRatings = {}
+	for i=1,#ratings1 do
+		local newRating = (ratings1[i] + ratings2[i]) / 2
+		table.insert(combinedRatings, newRating)
+	end
+	return combinedRatings
+end
+
+
+-------------------- GLOBAL FUNCTIONS:
+
 function state:new()
 	return lovelyMoon.new(self)
 end
-
 
 function state:load()
 
 end
 
-
 function state:close()
 end
 
-
 function state:enable()
 	studentInfo.inTournamentMatch = true 				-- If player goes through this state, they are about to participate in a tournament match
-	local tournamentStatus = serv:fetchTournamentInfo()
+	-- local tournamentStatus = serv:fetchTournamentInfo()
 end
-
 
 function state:disable()
 
-end
+	if not studentInfo.tournament or not studentInfo.tournamentMatch then
+		return 
+	end
 
+	local commonRating = CombineOpponentRatings(studentInfo.tournamentMatch.Ratings1, studentInfo.tournamentMatch.Ratings2)
+
+	local commonRatingSum = 0 				-- Total sum of the ratings for both players, averaged
+	for i,rat in ipairs(commonRating) do
+		commonRatingSum = commonRatingSum + rat
+	end
+
+
+	love.math.setRandomSeed(studentInfo.tournamentMatch.Seed)
+	questions = {}
+	for i = 0, studentInfo.tournament.QsPerMatch do
+		questions = CreateQuestion(questions, commonRating, commonRatingSum)
+	end
+	SendQuestions(questions)
+	love.math.setRandomSeed(love.timer.getTime())
+end
 
 function state:update(dt)
 end
-
 
 function state:draw()
 	backB:draw()
@@ -76,7 +113,6 @@ function NoMatches()
 	runningTournament = true
 	newMatches = false
 end
---]]
 
 function ReceiveMatchInfo(level1, level2)
 	level1 = loadstring(level1)
@@ -84,6 +120,7 @@ function ReceiveMatchInfo(level1, level2)
 	runningTournament = true
 	newMatches = true
 end
+--]]
 
 function PlayMatch()
 

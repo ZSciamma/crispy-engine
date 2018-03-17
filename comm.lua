@@ -52,14 +52,22 @@ local function notifyStudentOfTournament(roundTime, qsPerMatch)
     studentInfo.tournament = { RoundLength = RoundLength, QsPerMatch = qsPerMatch }
 end
 
-local function notifyStudentOfMatch(startDay, ratings1, ratings2)
+local function notifyStudentOfMatch(startDay, ratings1, ratings2, seed)
     addAlert("A new match is available!", 500, 500)
-    studentInfo.tournamentMatch = { StartDay = startDay, Ratings1 = ratings1, Ratings2 = ratings2 }
+    print(startDay)
+    print(ratings1)
+    print(ratings2)
+    print(seed)
+    ratings1 = DecodeRating(ratings1)
+    ratings2 = DecodeRating(ratings2)
+    studentInfo.tournamentMatch = { StartDay = startDay, Ratings1 = ratings1, Ratings2 = ratings2, Seed = seed }
 end
 
-local function recordCurrentMatch(roundTime, qsPerMatch, startDay, ratings1, ratings2)  -- Record essential information about the current match and tournament. Sent by the server when the student logs in.
+local function recordCurrentMatch(roundTime, qsPerMatch, startDay, ratings1, ratings2, seed)  -- Record essential information about the current match and tournament. Sent by the server when the student logs in.
+    ratings1 = DecodeRating(ratings1)
+    ratings2 = DecodeRating(ratings2)
     studentInfo.tournament = { RoundLength = roundTime, QsPerMatch = qsPerMatch }
-    studentInfo.tournamentMatch = { StartDay = startDay, Ratings1 = ratings1, Ratings2 = ratings2 }
+    studentInfo.tournamentMatch = { StartDay = startDay, Ratings1 = ratings1, Ratings2 = ratings2, Seed = seed }
 end
 
 local function notifyStudentOfBye()                 -- Inform the student that they have been given a bye for their next match (odd number of players in tournament only)
@@ -81,8 +89,8 @@ local function respondToMessage(event)
         ["JoinClassFail"] = function(peer) end,
         ["LogoutSuccess"] = function(peer) LogoutComplete() end,
         ["NewTournament"] = function(peer, roundTime, qsPerMatch) notifyStudentOfTournament(roundTime, qsPerMatch) end,
-        ["NewMatch"] = function(peer, roundTime, qsPerMatch, startDay, ratings1, ratings2) notifyStudentOfMatch(roundTime, qsPerMatch, startDay, ratings1, ratings2) end,
-        ["CurrentMatch"] = function(peer, roundTime, startDay, ratings1, ratings2) recordCurrentMatch(roundTime, startDay, ratings1, ratings2) end,
+        ["NewMatch"] = function(peer, roundTime, qsPerMatch, startDay, ratings1, ratings2, seed) notifyStudentOfMatch(roundTime, qsPerMatch, startDay, ratings1, ratings2, seed) end,
+        ["CurrentMatch"] = function(peer, roundTime, startDay, ratings1, ratings2, seed) recordCurrentMatch(roundTime, startDay, ratings1, ratings2, seed) end,
         ["ByeReceived"] = function(peer) notifyStudentOfBye() end,
 
         --["NewStudentAccept"] = function(peer, newID, className) AcceptID(newID, className) end, 
@@ -177,11 +185,13 @@ function Server:tryJoinClass(attemptedClassCode)
     serv:update()
 end
 
+--[[
 function Server:fetchTournamentInfo()                   -- Asks the central server for the student's next match. 
     if not self.setupComplete then return "incomplete" end
    
    serverPeer:send("NextGame")
 end
+--]]
 
 function Server:tryLogout(rating)
     if not serverPeer then 

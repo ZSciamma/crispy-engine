@@ -182,7 +182,7 @@ end
 function state:disable()
 	clearButtons()
 	if studentInfo.inTournamentMatch then
-		serv:SendMatchResult(totalScore)
+		serv:sendMatchResult(totalScore)
 	end
 end
 
