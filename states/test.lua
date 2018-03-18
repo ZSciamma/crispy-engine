@@ -16,8 +16,8 @@ local questionsAsked 							-- Number of questions asked so far
 local streak
 local notePause = 0.5							-- Pause between the two notes being played in a question
 local questionPause = 2							-- Pause between questions
-local noteCountdown 							-- Timer used throughout. Incremented in update(). 
-local answerTime 
+local noteCountdown 							-- Timer used throughout. Incremented in update().
+local answerTime
 local totalScore
 local maxAnswerTime = 5
 
@@ -45,16 +45,16 @@ local function allowInput()
 end
 
 local function disallowInput()
-	for i, button in ipairs(ansButtons) do 
+	for i, button in ipairs(ansButtons) do
 		button.on = false
 	end
 end
 
 local function exponentialFunction(x)
-	if x >= 1 then 
-		return Math.exp(1 - x) 
-	elseif x >= 0 then 
-		return 0 
+	if x >= 1 then
+		return Math.exp(1 - x)
+	elseif x >= 0 then
+		return 0
 	end
 end
 
@@ -79,9 +79,9 @@ local function calculateAnswerScore(time)						-- Calculates the score the stude
 	local fullScore = 1000										-- Score if question is answered almost immediately
 	local streakExtra = 100										-- Extra points per previous correct answer
 	local rawScore = 0
-	if time < 0.5 then 
+	if time < 0.5 then
 		rawScore = fullScore
-	elseif time > maxAnswerTime then 
+	elseif time > maxAnswerTime then
 		rawScore = fullScore / 2
 	else
 		rawScore = fullScore * (1 - ((time / maxAnswerTime) / 2))
@@ -95,7 +95,7 @@ end
 local function colourResults(pressed, answer)					-- Colours buttons to show correct and incorrect answers
 	if pressed == answer then
 		ansButtons[pressed].correct = true
-	else 
+	else
 		ansButtons[pressed].incorrect = true
 		ansButtons[answer].correct = true
 	end
@@ -112,15 +112,17 @@ local function updateScore(pressed, answer, time)				-- Update the streak, inter
 	end
 
 	if pressed == math.abs(answer) then									-- If answer is correct
-		if studentInfo.record[index] < 0 then						-- Does this interval have a negative streak? Bring it back to 1
-			studentInfo.record[index] = 1
-		else
-			studentInfo.record[index] = studentInfo.record[index] + 1
-		end
-		if studentInfo.record[index] >= 3 then						-- Is it time to increase the rating?
-			if studentInfo.ratingChange[index] < 1 then				-- Rating hasn't already been increased higher than today's starting point, else don't increase it
-				studentInfo.ratingChange[index] = studentInfo.ratingChange[index] + 1
-				studentInfo.record[index] = 0						-- Positive streak goes back to 0
+		if not studentInfo.inTournamentMatch then
+			if studentInfo.record[index] < 0 then						-- Does this interval have a negative streak? Bring it back to 1
+				studentInfo.record[index] = 1
+			else
+				studentInfo.record[index] = studentInfo.record[index] + 1
+			end
+			if studentInfo.record[index] >= 3 then						-- Is it time to increase the rating?
+				if studentInfo.ratingChange[index] < 1 then				-- Rating hasn't already been increased higher than today's starting point, else don't increase it
+					studentInfo.ratingChange[index] = studentInfo.ratingChange[index] + 1
+					studentInfo.record[index] = 0						-- Positive streak goes back to 0
+				end
 			end
 		end
 
@@ -128,15 +130,17 @@ local function updateScore(pressed, answer, time)				-- Update the streak, inter
 		questionScore = calculateAnswerScore(time)					-- Calculate the score gained for this question
 
 	else
-		if studentInfo.record[index] > 0 then
-			studentInfo.record[index] = -1
-		else
-			studentInfo.record[index] = studentInfo.record[index] - 1
-		end
-		if studentInfo.record[index] <= -3 then 
-			if studentInfo.ratingChange[index] > -1 then
-				studentInfo.ratingChange[index] = studentInfo.ratingChange[index] - 1
-				studentInfo.record[index] = 0
+		if not studentInfo.inTournamentMatch then
+			if studentInfo.record[index] > 0 then
+				studentInfo.record[index] = -1
+			else
+				studentInfo.record[index] = studentInfo.record[index] - 1
+			end
+			if studentInfo.record[index] <= -3 then
+				if studentInfo.ratingChange[index] > -1 then
+					studentInfo.ratingChange[index] = studentInfo.ratingChange[index] - 1
+					studentInfo.record[index] = 0
+				end
 			end
 		end
 
@@ -183,7 +187,7 @@ function state:disable()
 	clearButtons()
 	if studentInfo.inTournamentMatch then
 		serv:sendMatchResult(totalScore)
-		studentInfo.tournamentMatch = nil			
+		studentInfo.tournamentMatch = nil
 		studentInfo.inTournamentMatch = false
 	end
 end
@@ -207,7 +211,7 @@ function state:update(dt)						-- Responsible for the specific timings
 
 
 	if noteCountdown <= 0 then					-- Time's up! Ask which event should happen
-		if questionsAsked == studentInfo.qsPerTest then 
+		if questionsAsked == studentInfo.qsPerTest then
 			lovelyMoon.disableState("test")
 			lovelyMoon.enableState("summary")
 		elseif betweenTwoQuestions then			-- Time to ask the next question
@@ -216,7 +220,7 @@ function state:update(dt)						-- Responsible for the specific timings
 			playFirstNote(questionsAsked + 1)
 			noteCountdown = notePause
 		else									-- Time to play the second note
-			playSecondNote(questionsAsked + 1) 
+			playSecondNote(questionsAsked + 1)
 			waitingForAnswer = true
 			allowInput()
 			answerTime = 0
@@ -227,7 +231,7 @@ function state:update(dt)						-- Responsible for the specific timings
 end
 
 
-function state:draw()	
+function state:draw()
 	local a = ""
 	local b = ""
 	local c = ""
@@ -319,7 +323,7 @@ play first note 			Done
 calculate second note 		Done
 	pause 					Done
 play second note      		Done
-record answer  
+record answer
 show correct answer    		Done
 write next question    		Done
 

@@ -4,8 +4,8 @@ local state = {}
 
 -- State change buttons:
 
-local nextB = sButton("Next", love.graphics.getWidth() - 150, 100, 50, 50, "soloSetup", "test")
-local backB = sButton("Back", 100, 100, 50, 50, "soloSetup", "menu")
+local nextB = sButton("Start Training", love.graphics.getWidth() - 150, 100, 100, 50, "soloSetup", "test")
+local backB = sButton("Back", 100, 100, 100, 50, "soloSetup", "menu")
 
 local slider = Slider(300, 400, 500)
 
@@ -80,7 +80,7 @@ function state:draw()
 	nextB:draw()
 	backB:draw()
 
-	love.graphics.print("Rating: "..studentInfo.ratingSum, 550, 200)
+	love.graphics.print("Questions Per Match: "..slider:value(), 300, 300)
 end
 
 function state:keypressed(key, unicode)

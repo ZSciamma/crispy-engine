@@ -58,7 +58,7 @@ function state:enable()
 	}
 
 	for i, button in ipairs(menuButtonInfo) do
-		table.insert(menuButtons, sButton(button[1], 400, 100 + 50 * i, 300, 50, "menu", button[2]))				-- DRY: most parameters are common to every button in the menu
+		table.insert(menuButtons, sButton(button[1], 400, 100 + 50 * i, 300, 50, "menu", button[2], "left"))				-- DRY: most parameters are common to every button in the menu
 	end
 end
 
@@ -129,7 +129,7 @@ end
 function EncodeRatings()
 	local encoded = ""
 	for i,j in ipairs(studentInfo.rating) do
-		if i == 1 then 
+		if i == 1 then
 			encoded = j
 		else
 			encoded = encoded.."."..j

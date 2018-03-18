@@ -4,18 +4,22 @@
 sButton = Object:extend()
 
 -- Set the button's basic properties
-function sButton:new(text, x, y, width, height, s1, s2)
+function sButton:new(text, x, y, width, height, s1, s2, alignment)
 	self.text = text
 	self.x = x
-	self.y = y 
+	self.y = y
 	self.width = width
 	self.height = height
 	if type(s2) == "string" then 	-- allows for buttons with 'special' functions, such as quitting the program.
 		self.s1 = s1				-- By default, buttons will be used to change between two states, though.
 		self.s2 = s2
-	else 
+	else
 		self.func = s2
 	end
+	self.alignment = alignment or "centre"
+	self.textX = self.x + self.width / 2 - math.floor(string.len(self.text) / 2) * LetterWidth
+	self.textY = self.y + self.height / 2 - 10
+	self.textLimit = self.width - 10
 end
 
 function sButton:draw()
@@ -27,7 +31,11 @@ function sButton:draw()
 	love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
 	love.graphics.setColor(0, 0, 0)
 	love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
-	love.graphics.print(self.text, self.x + self.width / 10, self.y + self.height / 3)		--	Used to be self.x + self.width / 4 ;  6.5 is also a good setting
+	if self.alignment == "centre" then
+		love.graphics.printf(self.text, self.textX, self.textY, self.textLimit)
+	elseif self.alignment == "left" then
+		love.graphics.print(self.text, self.x + self.width / 10, self.y + self.height / 3)		--	Used to be self.x + self.width / 4 ;  6.5 is also a good setting
+	end
 	--love.graphics.printf(self.text, self.x, self.y + self.height / 2, self.width, "center")
 end
 
@@ -48,7 +56,7 @@ function sButton:mousereleased(x, y)
 end
 
 function sButton:act()
-	if self.func then 
+	if self.func then
 		self:func()
 	else
 		lovelyMoon.disableState(self.s1)

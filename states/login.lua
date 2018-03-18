@@ -5,7 +5,7 @@ local loginInputs = {
 	Password = textInput("Password", 400, 200, 300, 25, true)
 }
 
-local backB = sButton("Back", 100, 100, 50, 50, "login", "startup")
+local backB = sButton("Back", 100, 100, 100, 50, "login", "startup")
 local enterB = sButton("Log In", 400, 450, 300, 75, "login", function() ValidateLogin() end)
 
 local errorReason = ""					-- Why the user's account creation failed
@@ -58,7 +58,7 @@ function state:update(dt)
 	end
 
 	if serverTried then
-		if serverWaitTimer <= 0 then 
+		if serverWaitTimer <= 0 then
 			LoginFailed("The server is currently unavaliable. Please try again later.")
 		else
 			serverWaitTimer = serverWaitTimer - dt

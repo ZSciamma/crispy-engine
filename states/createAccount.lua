@@ -8,7 +8,7 @@ local accountInputs = {
 	Password2 = textInput("Re-Enter Password", 400, 350, 300, 25, true)
 }
 
-local backB = sButton("Back", 100, 100, 50, 50, "createAccount", "startup")
+local backB = sButton("Back", 100, 100, 100, 50, "createAccount", "startup")
 local enterB = sButton("Create Account", 400, 450, 300, 75, "createAccount", function() ValidateNewAccount() end)
 
 local errorReason = ""					-- Why the user's account creation failed
@@ -51,7 +51,7 @@ function state:update(dt)
 	end
 
 	if serverTried then
-		if serverWaitTimer <= 0 then 
+		if serverWaitTimer <= 0 then
 			serverTried = false
 			AccountFailed("The server is currently unavaliable. Please try again later.")
 		else
@@ -112,7 +112,7 @@ function ValidateNewAccount() 						-- Ask the server to create the new account
 	if name == "" or surname == "" or email == "" or password1 == "" or password2 == "" then
 		AccountFailed("Please fill in all fields.")
 		return
-	elseif password1 ~= password2 then 
+	elseif password1 ~= password2 then
 		AccountFailed("Please enter the same password in both password fields.")
 		return
 	end

@@ -1,7 +1,7 @@
 local state = {}
 
-local backB = sButton("Back", 100, 100, 50, 50, "multiSetup", "menu")
-local nextB = sButton("Start Match", love.graphics.getWidth() - 150, 100, 50, 50, "multiSetup", "test")
+local backB = sButton("Back", 100, 100, 100, 50, "multiSetup", "menu")
+local nextB = sButton("Start Match", love.graphics.getWidth() - 150, 100, 200, 50, "multiSetup", "test")
 
 local questions
 
@@ -15,7 +15,7 @@ function CombineOpponentRatings(ratings1, ratings2)
 	for i,j in ipairs(ratings2) do
 		print(ratings2[i])
 	end
-	
+
 	local combinedRatings = {}
 	for i=1,#ratings1 do
 		local newRating = (ratings1[i] + ratings2[i]) / 2
@@ -46,7 +46,7 @@ end
 function state:disable()
 
 	if not studentInfo.tournament or not studentInfo.tournamentMatch then
-		return 
+		return
 	end
 
 	local commonRating = CombineOpponentRatings(studentInfo.tournamentMatch.Ratings1, studentInfo.tournamentMatch.Ratings2)
@@ -72,7 +72,7 @@ end
 function state:draw()
 	backB:draw()
 
-	if studentInfo.className == "" then 
+	if studentInfo.className == "" then
 		love.graphics.print("Please go to the 'New Class' section to connect to a class!", 300, 275)
 	elseif not studentInfo.tournament then
 		love.graphics.print("No ongoing tournament. Ask your teacher to create one!", 300, 275)

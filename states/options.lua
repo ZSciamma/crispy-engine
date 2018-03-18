@@ -1,6 +1,6 @@
  local state = {}
 
-local backB = sButton("Back", 100, 100, 50, 50, "options", "menu")
+local backB = sButton("Back", 100, 100, 100, 50, "options", "menu")
 
 function state:new()
 	return lovelyMoon.new(self)
