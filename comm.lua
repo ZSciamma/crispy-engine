@@ -14,7 +14,7 @@ serverPeer = 0
 
 -------------------- LOCAL FUNCTIONS:
 
-local function split(peerMessage)
+function split(peerMessage)
     local messageTable = {}
     peerMessage = peerMessage..".....9"
     local length = #peerMessage
@@ -28,7 +28,7 @@ local function split(peerMessage)
             if dots >= 5 then
                 local word = string.sub(peerMessage, last, i - 6)
                 if word == "0" then word = "" end                     -- Account for the server sending blank info
-                last = i 
+                last = i
                 table.insert(messageTable, word)
             end
             dots = 0
@@ -37,7 +37,7 @@ local function split(peerMessage)
     return messageTable
 end
 
-local function completeNewAccount() 
+local function completeNewAccount()
     creatingNewAccount = false
     CompleteNewAccount()
 end
@@ -77,10 +77,24 @@ end
 local function notifyStudentOfBye()                 -- Inform the student that they have been given a bye for their next match (odd number of players in tournament only)
     addAlert("You've received a bye! No student was available for your next match, so you get 3 tournament points.", 500, 500)
     studentInfo.tournamentMatch = nil
-
 end
 
-local function respondToMessage(event)   
+local function notifyStudentOfMatchResult(opponent, result)
+    if result == "3" then
+        addAlert("You won against "..opponent.."! Congratulations!", 500, 500)
+    else
+        addAlert("You lost against "..opponent.."!", 500, 500)
+    end
+end
+
+local function notifyStudentOfTournamentEnd(winners, rank)
+    winners = loadstring(winners)()
+    addAlert("The tournament has ended! Here are the winners: \n\n1. "..winners[1].."\n2. "..winners[2].."\n3. "..winners[3], 500, 300)
+    studentInfo.tournament = nil
+    studentInfo.tournamentMatch = nil
+end
+
+local function respondToMessage(event)
     local messageTable = split(event.data)
     local first = messageTable[1]                   -- Find the description attached to the message
     command = first
@@ -98,9 +112,11 @@ local function respondToMessage(event)
         ["CurrentTournament"] = function(peer, roundTime, qsPerMatch) recordCurrentTournament(roundTime, qsPerMatch) end,
         ["CurrentMatch"] = function(peer, roundTime, qsPerMatch, startDay, ratings1, ratings2, seed) recordCurrentMatch(roundTime, qsPerMatch, startDay, ratings1, ratings2, seed) end,
         ["ByeReceived"] = function(peer) notifyStudentOfBye() end,
+        ["MatchResults"] = function(peer, opponent, result) notifyStudentOfMatchResult(opponent, result) end,
+        ["TournamentResults"] = function(peer, winners, rank) notifyStudentOfTournamentEnd(winners, rank) end
 
-        --["NewStudentAccept"] = function(peer, newID, className) AcceptID(newID, className) end, 
-        --["NewStudentReject"] = function(peer, reason) RejectNewStudent(reason) end, 
+        --["NewStudentAccept"] = function(peer, newID, className) AcceptID(newID, className) end,
+        --["NewStudentReject"] = function(peer, reason) RejectNewStudent(reason) end,
         --["FailedToJoinClass"] = function(peer) studentInfo.joinedClass = false; foundClass = false; studentInfo.className = "" end,
         --["WelcomeToClass"] = function(peer, newStudentID, TeacherForename, TeacherSurname) AcceptID(newStudentID, TeacherForename, TeacherSurname) end, --StudentID = newStudentID end
         --["WelcomeBackStudent"] = function(peer) end,
@@ -111,7 +127,7 @@ local function respondToMessage(event)
     if messageResponses[first] then messageResponses[first](event.peer, unpack(messageTable))end
 end
 
-local function handleEvent(event)                
+local function handleEvent(event)
     if event.type == "connect" then
         serverPeer = event.peer
         if creatingNewAccount then
@@ -129,8 +145,8 @@ end
 
 -------------------- GLOBAL FUNCTIONS:
 
-function Server:new()         
-    self.on = false                                                  
+function Server:new()
+    self.on = false
 end
 
 function Server:update(dt)
@@ -162,10 +178,10 @@ function Server:CreateNewAccount(name, surname, email, password)
     Info = name + surname + email + password
     creatingNewAccount = true
 
-    if self.server then 
+    if self.server then
         serverPeer:send("NewStudentAccount" + Info)
     else
-        self:connect() 
+        self:connect()
     end
 
     self.on = true
@@ -192,18 +208,18 @@ function Server:tryJoinClass(attemptedClassCode)
 end
 
 --[[
-function Server:fetchTournamentInfo()                   -- Asks the central server for the student's next match. 
+function Server:fetchTournamentInfo()                   -- Asks the central server for the student's next match.
     if not self.setupComplete then return "incomplete" end
-   
+
    serverPeer:send("NextGame")
 end
 --]]
 
-function Server:tryLogout(rating)
-    if not serverPeer then 
+function Server:tryLogout(rating, level)
+    if not serverPeer then
         setAlert("confirmation", "The server cannot be found. Would you like to log out anyway?")
     else
-        serverPeer:send("StudentLogout" + rating)
+        serverPeer:send("StudentLogout" + rating + level)
     end
 end
 
@@ -223,5 +239,3 @@ function SendInfo(peer, message, isStudent, ID)     -- Sends outgoing informatio
         listEvent(message, isStudent, ID)
     end
 end
-
-

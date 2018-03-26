@@ -19,13 +19,19 @@ studentInfo = {}
 
 serverLoc = "localhost:6789"	-- Location of the server
 
--- Some useful extension functions for strings:
+-- Some useful extension functions:
 
 local metaT = getmetatable("")
 
-metaT.__add = function(string1, string2)	--  + 
+metaT.__add = function(string1, string2)	--  +
 	return string1.."....."..string2
 end
+
+function round(number)
+	return math.floor(number + 0.5)
+end
+
+--[[
 
 metaT.__mul = function(string1, toAdd)		--  * Adds t after the (i-1)th letter; toAdd = { letter, index }
 	local length = string.len(string1)
@@ -37,27 +43,31 @@ metaT.__div = function(string1, i)			-- / Removes the ith letter
 	return string.sub(string1, 1, i - 1)..string.sub(string1, i + 1)
 end
 
---[[
-lick = require 'lib.lick'			-- Used for live coding; reloads the program after every save
-lick.reset = true					-- Causes problems, such as the inability to set a background color
 --]]
 
-states = {}
+states = { }
 
 -- This is the order of intervals used throughout for easy reference (1-indexed). Te ascending intervals are 1 to 12; the descending intervals
 -- are 13 to 24 in the same order.
 
-intervals = { "Minor Second", "Major Second", "Minor Third", "Major Third", "Perfect Fourth", "Tritone", "Perfect Fifth", "Minor Sixth", "Major Sixth", "Minor Seventh", "Major Seventh", "Octave" }
+intervals = { "Minor Second", "Major Second", "Minor Third", "Major Third", "Perfect Fourth", "Diminished 5th", "Perfect Fifth", "Minor Sixth", "Major Sixth", "Minor Seventh", "Major Seventh", "Octave" }
 types = { "Asc", "Dsc"}				-- Ascending and descending intervals
 noteList = { 'C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5', 'A#5', 'B5' }
-notes = {}
+notes = { }
+levels = {
+	{ { 5, 7, 12 }, 0, 0  },
+	{ { 1, 4     }, 3, 11 },
+	{ { 2, 3, 6  }, 3, 18 },
+	{ { 9, 11    }, 4, 37 },
+	{ { 8, 10    }, 5, 55 }
+}
 
 NoAlertStates = { "test", "summary" }
 
 ResponseDots = 5						-- How many dots separate data in responses?
 ServerTime = 0.2
 ServerTimer = ServerTime
-CurrentAlert = 0						-- The alert currently onscreen						
+CurrentAlert = 0						-- The alert currently onscreen
 alerts = Queue()						-- The queue of alerts to be shown to the user. Each of these may be a confirmation or a notification.
 LetterWidth = 9							-- The width of every letter in the font used
 LetterHeight = 8						-- Approximately the average height for letter
@@ -67,6 +77,7 @@ function love.load()					-- Callback function: called upon loading the program
 	love.graphics.setBackgroundColor(66, 167, 244)
 
 	love.window.setTitle("Interval Training")
+	love.keyboard.setKeyRepeat(true)
 
 	font = love.graphics.newFont("RobotoMono-Regular.ttf", 15)
 	love.graphics.setFont(font)
@@ -79,7 +90,6 @@ function love.load()					-- Callback function: called upon loading the program
 	states.multiSetup = lovelyMoon.addState("states.multiSetup", "multiSetup")
 	states.joinClass = lovelyMoon.addState("states.joinClass", "joinClass")
 	states.class = lovelyMoon.addState("states.class", "class")
-	states.options = lovelyMoon.addState("states.options", "options")
 	states.stats = lovelyMoon.addState("states.statistics", "stats")
 	states.summary = lovelyMoon.addState("states.summary", "summary")
 	states.soloSetup = lovelyMoon.addState("states.soloSetup", "soloSetup")
@@ -117,10 +127,7 @@ function love.draw()					-- Callback function: called automatically every to dra
 
 	if CurrentAlert ~= 0 then CurrentAlert:draw() end
 
-	--[[
-	local alertNumber = alerts.length
-	love.graphics.print(alertNumber, 800, 200)
-	-]]
+	if studentInfo.level then love.graphics.print(studentInfo.level, 0, 0) end
 end
 
 function love.keyreleased(key)
@@ -160,7 +167,11 @@ function love.mousereleased(x, y)
 	end
 	-- No alerts:
 	lovelyMoon.events.mousereleased(x, y)
-end 
+end
+
+function love.textinput(text)
+	lovelyMoon.events.textinput(text)
+end
 
 function love.quit()
 	if serverPeer ~= 0 then serverPeer:disconnect_later(); serv:update() end
@@ -171,7 +182,7 @@ function addAlert(message, width, height, confirmFunc, rejectFunc)			-- Type is 
 	local newAlert
 	if confirmFunc then			-- confirmFunc is nil unless the alert is a confirmation alert.
 		newAlert = Confirmation(message, width, height, confirmFunc, rejectFunc)
-	else 
+	else
 		newAlert = Notification(message, width, height)
 	end
 
@@ -182,7 +193,7 @@ end
 function checkAlertQueue()				-- Checks whether it is appropriate to send the next alert in the queue
 	if CurrentAlert ~= 0 then return false end 			-- Return if an alert is already onscreen
 	for i,s in ipairs(NoAlertStates) do
-		if lovelyMoon.isStateEnabled(s) then 
+		if lovelyMoon.isStateEnabled(s) then
 			return false
 		end
 	end
@@ -192,7 +203,5 @@ end
 
 function voidAlert()					-- Throws away the current alert when the user is done with it
 	CurrentAlert = 0
-	if checkAlertQueue() then return end
+	checkAlertQueue()
 end
-
-

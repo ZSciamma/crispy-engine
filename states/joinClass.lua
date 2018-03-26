@@ -4,7 +4,7 @@ local state = {}
 -- State change buttons:
 
 local backB = sButton("Back", 100, 100, 100, 50, "joinClass", "menu")
-local nextB = sButton("Next", love.graphics.getWidth() - 150, 100, 100, 50, "joinClass", function() JoinClass() end)
+local nextB = sButton("Join Class", love.graphics.getWidth() - 150, 100, 100, 50, "joinClass", function() JoinClass() end)
 local classInput = textInput("Enter Class Code", 400, 200, 300, 100)		-- Used to input the name of the class to be joined
 
 function state:new()
@@ -50,11 +50,10 @@ end
 
 function state:keypressed(key, unicode)
 	classInput:keypressed(key)
-
 end
 
-function state:keyreleased(key, unicode)
-	classInput:keyreleased(key)
+function state:textinput(text)
+	classInput:textinput(text)
 end
 
 function state:mousepressed(x, y)

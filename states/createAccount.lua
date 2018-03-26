@@ -16,13 +16,27 @@ local serverWaitTime = 5				-- Time after which the server is declared unavaliab
 local serverWaitTimer = serverWaitTime
 local serverTried = false				-- Are we trying to connect to the server?
 
+
+-------------------- LOCAL FUNCTIONS:
+
+local function disableButtons()
+	backB:disable()
+	enterB:disable()
+end
+
+local function enableButtons()
+	backB:enable()
+	enterB:enable()
+end
+
+
+-------------------- GLOBAL FUNCTIONS:
 function state:new()
 	return lovelyMoon.new(self)
 end
 
 
 function state:load()
-
 end
 
 
@@ -34,6 +48,7 @@ function state:enable()
 	for i,input in pairs(accountInputs) do
 		input:enable()
 	end
+	enableButtons()
 end
 
 
@@ -42,6 +57,7 @@ function state:disable()
 		input:disable()
 	end
 	AccountFailed()						-- Reset errors and timers
+	disableButtons()
 end
 
 
@@ -80,9 +96,9 @@ function state:keypressed(key, unicode)
 	end
 end
 
-function state:keyreleased(key, unicode)
-	for i,button in pairs(accountInputs) do
-		button:keyreleased(key)
+function state:textinput(text)
+	for i,input in pairs(accountInputs) do
+		input:textinput(text)
 	end
 end
 
@@ -109,6 +125,7 @@ function ValidateNewAccount() 						-- Ask the server to create the new account
 	local password1 = accountInputs.Password1.text
 	local password2 = accountInputs.Password2.text
 
+	-- Ensure all fields are full :
 	if name == "" or surname == "" or email == "" or password1 == "" or password2 == "" then
 		AccountFailed("Please fill in all fields.")
 		return
@@ -117,7 +134,24 @@ function ValidateNewAccount() 						-- Ask the server to create the new account
 		return
 	end
 
+	-- Deny any use of the delimiter:
+	for i,input in pairs(accountInputs) do
+		if input:checkDelimiter() then
+			addAlert("Please enter fewer exotic characters.", 500, 500)
+			return
+		end
+	end
+
+	-- Password Strength:
+	local strongPassword = accountInputs.Password1:passwordStrength()
+	if not strongPassword then
+		addAlert("Please use a stronger password.", 500, 500)
+		return
+	end
+
 	AccountFailed()
+	disableButtons()
+
 	serverTried = true
 	serverWaitTimer = serverWaitTime
 
@@ -127,12 +161,15 @@ function ValidateNewAccount() 						-- Ask the server to create the new account
 end
 
 function CompleteNewAccount() 								-- Finish creating the new account (once server has accepted)
+	addAlert("You successfully created an account!", 500, 500)
 	lovelyMoon.disableState("createAccount")
 	lovelyMoon.enableState("startup")						-- Send student back to start to log in
 end
 
 function AccountFailed(reason)
-	errorReason = reason or ""
+	enableButtons()
+	if reason then addAlert(reason, 500, 500) end
+	--errorReason = reason or ""
 
 	serverTried = false
 	serverWaitTimer = serverWaitTime

@@ -30,7 +30,8 @@ function state:enable()
 		record = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },		-- Which answers have been answered correctly and incorrectly
 		ratingChange = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 	-- How much the rating has changed this session for each interval
 		qsPerTest = 5,
-		ratingSum = 0	 				-- Total sum of all ratings
+		ratingSum = 0,	 				-- Total sum of all ratings
+		level = 0						-- Current Level						
 	}
 end
 

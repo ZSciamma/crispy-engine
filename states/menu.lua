@@ -8,7 +8,7 @@ local state = {}
 menuButtons = {}
 menuButtonInfo = {}
 
-whiteKeys = { 0, 50, 100, 450, 500, 550 }
+whiteKeys = { 0, 50, 100, 150, 450, 500, 550 }
 blackKeys = { 35, 90, 180, 240, 330, 385, 440, 530, 590 }
 
 
@@ -51,14 +51,13 @@ function state:enable()
 		{ "Solo", "soloSetup" },			-- { Button text, state name }
 		{ "Multiplayer", "multiSetup" },
 		{ "Class", classStatus },			-- Directs the student to join a class or see their current class
-		{ "Options", "options" },
 		{ "Statistics", "stats" },
 		{ "Log Out", function() Logout() end }
 		--{ "Quit", 400, 450, 300, 50, function() love.event.quit() end }
 	}
 
 	for i, button in ipairs(menuButtonInfo) do
-		table.insert(menuButtons, sButton(button[1], 400, 100 + 50 * i, 300, 50, "menu", button[2], "left"))				-- DRY: most parameters are common to every button in the menu
+		table.insert(menuButtons, sButton(button[1], 400, 150 + 50 * i, 300, 50, "menu", button[2], "left"))				-- DRY: most parameters are common to every button in the menu
 	end
 end
 
@@ -119,7 +118,7 @@ end
 function Logout()					-- When the logout button is pressed, the program attempts to log out
 	updateRatings()
 	local encodedRating = EncodeRatings()
-	serv:tryLogout(encodedRating)
+	serv:tryLogout(encodedRating, studentInfo.level)
 end
 
 function LogoutComplete()			-- When the server confirms the logout, the program returns to the startup screen.

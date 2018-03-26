@@ -53,10 +53,7 @@ end
 
 function state:enable()
 	studentInfo.inTournamentMatch = false				-- If player goes through soloSetup screen, the are playing alone and not in a tournament
-	studentInfo.ratingSum = 0
-	for i,rating in ipairs(studentInfo.rating) do
-		studentInfo.ratingSum = studentInfo.ratingSum + rating
-	end
+	SumRatings()
 end
 
 
@@ -101,6 +98,13 @@ function state:mousereleased(x, y)
 	slider:mousereleased(x, y)
 	nextB:mousereleased(x, y)
 	backB:mousereleased(x, y)
+end
+
+function SumRatings()			-- Calculates the sum of the rating for every interval
+	studentInfo.ratingSum = 0
+	for i,rating in ipairs(studentInfo.rating) do
+		studentInfo.ratingSum = studentInfo.ratingSum + rating
+	end
 end
 
 return state

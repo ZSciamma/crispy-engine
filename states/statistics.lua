@@ -22,7 +22,6 @@ end
 
 
 function state:disable()
-	addAlert("hi", 500, 500)
 end
 
 

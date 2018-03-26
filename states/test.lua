@@ -209,7 +209,6 @@ function state:update(dt)						-- Responsible for the specific timings
 		noteCountdown = noteCountdown - dt
 	end
 
-
 	if noteCountdown <= 0 then					-- Time's up! Ask which event should happen
 		if questionsAsked == studentInfo.qsPerTest then
 			lovelyMoon.disableState("test")
@@ -258,7 +257,7 @@ function state:draw()
 	love.graphics.print("Rating: "..a, 50, 450)
 	love.graphics.print("Record: "..b, 50, 500)
 	love.graphics.print("Change: "..c, 50, 550)
-	love.graphics.print("Score: "..totalScore, 900, 100)
+	love.graphics.print("Score: "..math.floor(totalScore + 0.5), 900, 100)
 end
 
 function state:keypressed(key, unicode)

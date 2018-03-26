@@ -13,7 +13,20 @@ local serverWaitTime = 5				-- Time after which the server is declared unavaliab
 local serverWaitTimer = serverWaitTime
 local serverTried = false				-- Are we trying to connect to the server?
 
+-------------------- LOCAL FUNCTIONS:
 
+local function disableButtons()
+	backB:disable()
+	enterB:disable()
+end
+
+local function enableButtons()
+	backB:enable()
+	enterB:enable()
+end
+
+
+-------------------- GLOBAL FUNCTIONS:
 
 function DecodeRating(rating)
 	local l = {}
@@ -41,6 +54,7 @@ function state:enable()
 	for i,input in pairs(loginInputs) do
 		input:enable()
 	end
+	enableButtons()
 end
 
 
@@ -49,6 +63,7 @@ function state:disable()
 		input:disable()
 	end
 	LoginFailed() 					-- Reset errors and timers
+	disableButtons()
 end
 
 
@@ -85,9 +100,9 @@ function state:keypressed(key, unicode)
 	end
 end
 
-function state:keyreleased(key, unicode)
+function state:textinput(text)
 	for i,input in pairs(loginInputs) do
-		input:keyreleased(key)
+		input:textinput(text)
 	end
 end
 
@@ -115,7 +130,16 @@ function ValidateLogin()
 		return
 	end
 
+	for i,input in pairs(loginInputs) do
+		if input:checkDelimiter() then
+			addAlert("Please enter fewer exotic characters.", 500, 500)
+			return
+		end
+	end
+
 	LoginFailed()
+	disableButtons()
+
 	serverTried = true
 	serverWaitTimer = serverWaitTime
 
@@ -126,29 +150,29 @@ end
 function CompleteLogin(className, rating)
 	studentInfo.className = className
 	studentInfo.rating = DecodeRating(rating)
+	studentInfo.level = CalculateLevel()
 	lovelyMoon.switchState("login", "menu")
 end
 
 function LoginFailed(reason)
-	errorReason = reason or ""
+	enableButtons()
+	if reason then addAlert(reason, 500, 500) end
+	--errorReason = reason or ""
 	serverTried = false
 	serverWaitTimer = serverWaitTime
 end
 
-
-
---[[
--- No point in storing the name of each interval.
-function DecodeRating(rating)
-	local l = {}
-	local i = 0
-	for word in string.gmatch(rating, "[^.]+") do
-		i = i + 1
-		local name = types[2 - (i % 2)].." "..intervals[i]
-		l[name] = tonumber(word)
+function CalculateLevel()
+	SumRatings()
+	local level = 0
+	for i,l in ipairs(levels) do
+		if studentInfo.ratingSum < l[3] then return level end
+		for i,rating in ipairs(studentInfo.rating) do
+			if rating ~= 0 and rating < l[2] then return level end
+		end
+		level = i
 	end
+	return level
 end
---]]
-
 
 return state

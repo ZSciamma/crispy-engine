@@ -18,7 +18,7 @@ function Notification:new(text, width, height)		-- Potentially also insert an 'a
 		self.textX = self.x + 5
 		self.textLimit = self.width - 16
 	end
-	self.textY = love.graphics.getHeight() / 2 - 20
+	self.textY = love.graphics.getHeight() / 2 - 30
 
 	self.buttons = {}
 
