@@ -127,7 +127,7 @@ function love.draw()					-- Callback function: called automatically every to dra
 
 	if CurrentAlert ~= 0 then CurrentAlert:draw() end
 
-	if studentInfo.level then love.graphics.print(studentInfo.level, 0, 0) end
+	--if studentInfo.level then love.graphics.print(studentInfo.level, 0, 0) end
 end
 
 function love.keyreleased(key)

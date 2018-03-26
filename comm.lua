@@ -52,8 +52,8 @@ local function notifyStudentOfTournament(roundTime, qsPerMatch)
     studentInfo.tournament = { RoundLength = RoundLength, QsPerMatch = qsPerMatch }
 end
 
-local function notifyStudentOfMatch(startDay, ratings1, ratings2, seed)
-    addAlert("A new match is available!", 500, 500)
+local function notifyStudentOfMatch(startDay, ratings1, ratings2, seed, opponent)
+    addAlert("A new match is available. You're facing "..opponent.." this round!", 500, 500)
     print(startDay)
     print(ratings1)
     print(ratings2)
@@ -89,7 +89,7 @@ end
 
 local function notifyStudentOfTournamentEnd(winners, rank)
     winners = loadstring(winners)()
-    addAlert("The tournament has ended! Here are the winners: \n\n1. "..winners[1].."\n2. "..winners[2].."\n3. "..winners[3], 500, 300)
+    addAlert("The tournament has ended! Here are the winners: \n\n1. "..winners[1].."\n2. "..winners[2].."\n3. "..winners[3].."\n Your rank was "..rank.."!", 500, 300)
     studentInfo.tournament = nil
     studentInfo.tournamentMatch = nil
 end
@@ -108,7 +108,7 @@ local function respondToMessage(event)
         ["JoinClassFail"] = function(peer) end,
         ["LogoutSuccess"] = function(peer) LogoutComplete() end,
         ["NewTournament"] = function(peer, roundTime, qsPerMatch) notifyStudentOfTournament(roundTime, qsPerMatch) end,
-        ["NewMatch"] = function(peer, roundTime, qsPerMatch, startDay, ratings1, ratings2, seed) notifyStudentOfMatch(roundTime, qsPerMatch, startDay, ratings1, ratings2, seed) end,
+        ["NewMatch"] = function(peer, roundTime, qsPerMatch, startDay, ratings1, ratings2, seed, opponent) notifyStudentOfMatch(roundTime, qsPerMatch, startDay, ratings1, ratings2, seed, opponent) end,
         ["CurrentTournament"] = function(peer, roundTime, qsPerMatch) recordCurrentTournament(roundTime, qsPerMatch) end,
         ["CurrentMatch"] = function(peer, roundTime, qsPerMatch, startDay, ratings1, ratings2, seed) recordCurrentMatch(roundTime, qsPerMatch, startDay, ratings1, ratings2, seed) end,
         ["ByeReceived"] = function(peer) notifyStudentOfBye() end,
