@@ -147,10 +147,12 @@ function ValidateLogin()
 	if failureReason then LoginFailed(failureReason) end
 end
 
-function CompleteLogin(className, rating)
+function CompleteLogin(name, className, rating, level, statistics)
+	studentInfo.name = name
 	studentInfo.className = className
 	studentInfo.rating = DecodeRating(rating)
-	studentInfo.level = CalculateLevel()
+	studentInfo.statistics = loadstring(statistics)()
+	studentInfo.level = level
 	lovelyMoon.switchState("login", "menu")
 end
 
@@ -160,19 +162,6 @@ function LoginFailed(reason)
 	--errorReason = reason or ""
 	serverTried = false
 	serverWaitTimer = serverWaitTime
-end
-
-function CalculateLevel()
-	SumRatings()
-	local level = 0
-	for i,l in ipairs(levels) do
-		if studentInfo.ratingSum < l[3] then return level end
-		for i,rating in ipairs(studentInfo.rating) do
-			if rating ~= 0 and rating < l[2] then return level end
-		end
-		level = i
-	end
-	return level
 end
 
 return state

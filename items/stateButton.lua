@@ -3,6 +3,8 @@
 
 sButton = Object:extend()
 
+local textMargin = 10			-- How far from the edges of the button the text should be (at least)
+
 -- Set the button's basic properties
 function sButton:new(text, x, y, width, height, s1, s2, alignment)
 	self.text = text
@@ -17,9 +19,16 @@ function sButton:new(text, x, y, width, height, s1, s2, alignment)
 		self.func = s2
 	end
 	self.alignment = alignment or "centre"
-	self.textX = self.x + self.width / 2 - math.floor(string.len(self.text) / 2) * LetterWidth
-	self.textY = self.y + self.height / 2 - 10
-	self.textLimit = self.width - 10
+	if string.len(text) * LetterWidth < width - textMargin then
+		self.textX = self.x + self.width / 2 - math.floor(string.len(self.text) / 2) * LetterWidth
+		self.textLimit = string.len(text) * LetterWidth
+		self.textY = self.y + self.height / 2 - 10
+	else
+		self.textX = self.x + textMargin
+		self.textLimit = self.width - textMargin * 2
+		self.textY = self.y + self.height / 2 - 20
+	end
+
 	self.on = true
 end
 

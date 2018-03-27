@@ -4,7 +4,7 @@ local state = {}
 
 -- State change buttons:
 
-local nextB = sButton("Start Training", love.graphics.getWidth() - 150, 100, 100, 50, "soloSetup", "test")
+local nextB = sButton("Start Training", love.graphics.getWidth() - 200, 100, 100, 50, "soloSetup", "test")
 local backB = sButton("Back", 100, 100, 100, 50, "soloSetup", "menu")
 
 local slider = Slider(300, 400, 500)
@@ -14,11 +14,15 @@ local questions 										-- Holds the questions to be asked in solo mode
 
 function CreateQuestion(questionTable, ratingTable, ratingSum)
 	local prob = love.math.random()
+	local totalProb = 0
+	for i,j in ipairs(ratingTable) do
+		if j ~= 0 then totalProb = totalProb + 1 / j end
+	end
 	local currentSum = 0
 	local intervalNumber = 0
 	for i,rating in ipairs(ratingTable) do 					-- Ratio of probabilities equals ratio of ratings
-		currentSum = currentSum + rating
-		if prob < currentSum * (1 / ratingSum) then
+		if rating ~= 0 then currentSum = currentSum + 1 / rating end
+		if prob * totalProb < currentSum then
 			intervalNumber = i
 			break
 		end
@@ -77,6 +81,7 @@ function state:draw()
 	nextB:draw()
 	backB:draw()
 
+	love.graphics.printf("Solo Training:", love.graphics.getWidth() / 2 - 7 * LetterWidth, 100, LetterWidth * 14, "center")
 	love.graphics.print("Questions Per Match: "..slider:value(), 300, 300)
 end
 

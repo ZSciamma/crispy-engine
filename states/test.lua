@@ -13,6 +13,7 @@ local ansButtons = {}							-- Stores the answer buttons
 
 local questions 								-- Stores each question for the current test as follows:   { interval no., starting pitch, wasCorrect }
 local questionsAsked 							-- Number of questions asked so far
+local correct
 local streak
 local notePause = 0.5							-- Pause between the two notes being played in a question
 local questionPause = 2							-- Pause between questions
@@ -40,7 +41,11 @@ end
 
 local function allowInput()
 	for i, button in ipairs(ansButtons) do
-		button.on = true
+		if studentInfo.rating[2 * i] == 0 then
+			button.on = false
+		else
+			button.on = true
+		end
 	end
 end
 
@@ -112,6 +117,7 @@ local function updateScore(pressed, answer, time)				-- Update the streak, inter
 	end
 
 	if pressed == math.abs(answer) then									-- If answer is correct
+		correct = correct + 1
 		if not studentInfo.inTournamentMatch then
 			if studentInfo.record[index] < 0 then						-- Does this interval have a negative streak? Bring it back to 1
 				studentInfo.record[index] = 1
@@ -180,6 +186,15 @@ function state:enable()
 
 	totalScore = 0
 	streak = 0
+	correct = 0
+
+	for i, button in ipairs(ansButtons) do
+		if studentInfo.rating[2 * i] == 0 then
+			button.grey = true
+		else
+			button.grey = false
+		end
+	end
 end
 
 
@@ -190,6 +205,10 @@ function state:disable()
 		studentInfo.tournamentMatch = nil
 		studentInfo.inTournamentMatch = false
 	end
+	local prevTotal = studentInfo.statistics[1]
+	local prevCorrect = studentInfo.statistics[2]
+	studentInfo.statistics[1] = prevTotal + questionsAsked
+	studentInfo.statistics[2] = prevCorrect + correct
 end
 
 

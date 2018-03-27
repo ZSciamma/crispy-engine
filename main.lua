@@ -31,20 +31,6 @@ function round(number)
 	return math.floor(number + 0.5)
 end
 
---[[
-
-metaT.__mul = function(string1, toAdd)		--  * Adds t after the (i-1)th letter; toAdd = { letter, index }
-	local length = string.len(string1)
-	return string.sub(string1, 1, toAdd[2] - 1)..toAdd[1]..string.sub(string1, toAdd[2])
-end
-
-metaT.__div = function(string1, i)			-- / Removes the ith letter
-	local length = string.len(string1)
-	return string.sub(string1, 1, i - 1)..string.sub(string1, i + 1)
-end
-
---]]
-
 states = { }
 
 -- This is the order of intervals used throughout for easy reference (1-indexed). Te ascending intervals are 1 to 12; the descending intervals
@@ -55,7 +41,7 @@ types = { "Asc", "Dsc"}				-- Ascending and descending intervals
 noteList = { 'C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5', 'A#5', 'B5' }
 notes = { }
 levels = {
-	{ { 5, 7, 12 }, 0, 0  },
+	{ { 5, 7, 12 }, 0, 0  },		-- { intervals, rating per interval to move up, total rating to move up }
 	{ { 1, 4     }, 3, 11 },
 	{ { 2, 3, 6  }, 3, 18 },
 	{ { 9, 11    }, 4, 37 },
@@ -127,7 +113,7 @@ function love.draw()					-- Callback function: called automatically every to dra
 
 	if CurrentAlert ~= 0 then CurrentAlert:draw() end
 
-	--if studentInfo.level then love.graphics.print(studentInfo.level, 0, 0) end
+	if studentInfo.level then love.graphics.print(studentInfo.level, 0, 0) end
 end
 
 function love.keyreleased(key)

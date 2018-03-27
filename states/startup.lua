@@ -20,9 +20,11 @@ end
 function state:enable()
 	-- When the user logs out, we want to reset these variables:
 	studentInfo = {
+		name = "",
 		attemptedClassCode = "",		-- Name of the class the student's trying to join
 		foundClass = false,				-- True if the student has joined or is attempting to join a class
 		className = "",
+		statistics = "",
 		rating = {},					-- The rating score for each interval
 		tournament = nil,				-- Info about the student's current tournament. Nil if no tournament is available. { roundTime }
 		tournamentMatch = nil,			-- Info about the student's current match. Nil if no match is available:  { startDay, ratings1, ratings2 }
@@ -31,7 +33,7 @@ function state:enable()
 		ratingChange = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 	-- How much the rating has changed this session for each interval
 		qsPerTest = 5,
 		ratingSum = 0,	 				-- Total sum of all ratings
-		level = 0						-- Current Level						
+		level = 0						-- Current Level
 	}
 end
 

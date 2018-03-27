@@ -80,6 +80,7 @@ function JoinComplete(className)
 	studentInfo.className = className
 	lovelyMoon.disableState("joinClass")
 	lovelyMoon.enableState("class")
+	addAlert("You succesfully joined "..className.."!", 500, 500)
 end
 
 return state

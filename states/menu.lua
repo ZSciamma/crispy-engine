@@ -118,7 +118,7 @@ end
 function Logout()					-- When the logout button is pressed, the program attempts to log out
 	updateRatings()
 	local encodedRating = EncodeRatings()
-	serv:tryLogout(encodedRating, studentInfo.level)
+	serv:tryLogout(encodedRating, studentInfo.level, table.serialize(studentInfo.statistics))
 end
 
 function LogoutComplete()			-- When the server confirms the logout, the program returns to the startup screen.

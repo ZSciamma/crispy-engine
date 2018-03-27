@@ -42,12 +42,16 @@ local function completeNewAccount()
     CompleteNewAccount()
 end
 
-local function accountFailed(reason)
+local function accountFailed(reason)            -- Notify the student that creating their account failed
     creatingNewAccount = false
     AccountFailed(reason)
 end
 
-local function notifyStudentOfTournament(roundTime, qsPerMatch)
+local function joinClassFailed()                -- Notify student that joining the class failed
+    addAlert("This class code is incorrect. Please ask your teacher for the correct code.", 300, 300)
+end
+
+local function notifyStudentOfTournament(roundTime, qsPerMatch)             -- Called to notify the student that a new tournament has started. Called once at the start of every tournament
     addAlert("Your teacher has started a new tournament!", 500, 500)
     studentInfo.tournament = { RoundLength = RoundLength, QsPerMatch = qsPerMatch }
 end
@@ -64,7 +68,7 @@ local function notifyStudentOfMatch(startDay, ratings1, ratings2, seed, opponent
 end
 
 local function recordCurrentTournament(roundTime, qsPerMatch)   -- Record information about the current tournament when the student logs in, regardless of whether or not they have a match
-    studentInfo.tournament = { RoundLength = roundTime, QsPerMatch = qsPerMatch}
+    studentInfo.tournament = { RoundLength = roundTime, QsPerMatch = qsPerMatch }
 end
 
 local function recordCurrentMatch(roundTime, qsPerMatch, startDay, ratings1, ratings2, seed)  -- Record essential information about the current match and tournament. Sent by the server when the student logs in.
@@ -102,10 +106,10 @@ local function respondToMessage(event)
     local messageResponses = {                      -- List of messages that can be received from the teacher and their handling functions
         ["NewAccountAccept"] = function(peer) completeNewAccount() end,
         ["NewAccountReject"] = function(peer, reason) accountFailed(reason) end,
-        ["LoginSuccess"] = function(peer, className, rating) CompleteLogin(className, rating) end,
+        ["LoginSuccess"] = function(peer, name, className, rating, level, statistics) CompleteLogin(name, className, rating, tonumber(level), statistics) end,
         ["LoginFail"] = function(peer, reason) LoginFailed(reason) end,
         ["JoinClassSuccess"] = function(peer, className) JoinComplete(className) end,
-        ["JoinClassFail"] = function(peer) end,
+        ["JoinClassFail"] = function(peer) joinClassFailed() end,
         ["LogoutSuccess"] = function(peer) LogoutComplete() end,
         ["NewTournament"] = function(peer, roundTime, qsPerMatch) notifyStudentOfTournament(roundTime, qsPerMatch) end,
         ["NewMatch"] = function(peer, roundTime, qsPerMatch, startDay, ratings1, ratings2, seed, opponent) notifyStudentOfMatch(roundTime, qsPerMatch, startDay, ratings1, ratings2, seed, opponent) end,
@@ -159,7 +163,7 @@ end
 
 
 function Server:draw()
-    ---[[
+    --[[
     --if not foundClass then return end                 -- Eventually uncomment when debugging is done
     love.graphics.setColor(0, 0, 0)
 
@@ -215,11 +219,11 @@ function Server:fetchTournamentInfo()                   -- Asks the central serv
 end
 --]]
 
-function Server:tryLogout(rating, level)
+function Server:tryLogout(rating, level, statistics)
     if not serverPeer then
         setAlert("confirmation", "The server cannot be found. Would you like to log out anyway?")
     else
-        serverPeer:send("StudentLogout" + rating + level)
+        serverPeer:send("StudentLogout" + rating + level + statistics)
     end
 end
 
