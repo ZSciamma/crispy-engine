@@ -30,10 +30,6 @@ function ansButton:new(text, x, y, radius)
 	self.grey = false							-- True if the button is not in use and must be greyed out
 end
 
-function ansButton:update(dt)
-
-end
-
 function ansButton:draw()
 	love.graphics.setColor(neutralColor)
 	if self.active then

@@ -103,8 +103,6 @@ function love.update(dt)
 	else
 		ServerTimer = ServerTimer - dt
 	end
-
-	if CurrentAlert ~= 0 then CurrentAlert:update(dt) end
 end
 
 function love.draw()					-- Callback function: called automatically every to draw everything onscreen
@@ -113,7 +111,7 @@ function love.draw()					-- Callback function: called automatically every to dra
 
 	if CurrentAlert ~= 0 then CurrentAlert:draw() end
 
-	if studentInfo.level then love.graphics.print(studentInfo.level, 0, 0) end
+	--if studentInfo.level then love.graphics.print(studentInfo.level, 0, 0) end
 end
 
 function love.keyreleased(key)

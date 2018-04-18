@@ -5,7 +5,7 @@ local buttonHeight = 50
 local buttonMarginY = 25			-- Space between bottom of the popup and the button
 local letterWidth = 9
 
-function Notification:new(text, width, height)		-- Potentially also insert an 'accept' function
+function Notification:new(text, width, height)	
 	self.width = width
 	self.height = height
 	self.x = (love.graphics.getWidth() - self.width) / 2
@@ -27,11 +27,6 @@ function Notification:new(text, width, height)		-- Potentially also insert an 'a
 	table.insert(self.buttons, sButton("Ok!", self.x + (self.width - buttonWidth) / 2, self.y + self.height - buttonHeight - buttonMarginY, buttonWidth, buttonHeight, "state", function() voidAlert() end))
 end
 
-
-function Notification:update(dt)
-end
-
-
 function Notification:draw()
 	love.graphics.setColor(255, 255, 255)
 	love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
@@ -45,14 +40,11 @@ function Notification:draw()
 	end
 end
 
-
 function Notification:mousepressed(x, y)
 	for i,button in ipairs(self.buttons) do
 		button:mousepressed(x, y)
 	end
 end
-
-
 
 function Notification:mousereleased(x, y)
 	for i,button in ipairs(self.buttons) do

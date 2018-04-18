@@ -54,8 +54,7 @@ function Slider:mousereleased(x, y)
 	self.active = false
 end
 
--- Ensures the circle pointer places itself on one of the slider's nodes:
-function Slider:adjustCircle()
+function Slider:adjustCircle()				-- Ensures the circle pointer places itself on one of the slider's nodes:
 	r = (self.cX - self.x) % nodeDist				-- Checks how far the pointer is from a node
 	if r == 0 then return end
 	if r < nodeDist / 2 then						-- Moves pointer to nearest node
@@ -70,6 +69,6 @@ function Slider:adjustCircle()
 	return
 end
 
-function Slider:value()
+function Slider:value()				-- Returns the current value of the slider
 	return 5 * (self.cX - self.x) / nodeDist						-- Returns the value selected on the slider
 end

@@ -67,7 +67,7 @@ function sButton:mousereleased(x, y)
 	self.active = false
 end
 
-function sButton:act()
+function sButton:act()				-- Performs the button's function when required.
 	if self.func then
 		self:func()
 	else

@@ -1,19 +1,19 @@
 local state = {}
 
+local correct
+local total
+
 local nextB = sButton("Next", 500, 500, 100, 50, "summary", "menu")
 
 function state:new()
 	return lovelyMoon.new(self)
 end
 
-
 function state:load()
 end
 
-
 function state:close()
 end
-
 
 function state:enable()
 	local newLevel = CalculateLevel()
@@ -31,7 +31,6 @@ function state:enable()
 	end
 end
 
-
 function state:disable()
 end
 
@@ -39,9 +38,11 @@ end
 function state:update(dt)
 end
 
-
 function state:draw()
 	nextB:draw()
+	local correctAnswers = "Correct: "..tostring(correct).." out of "..tostring(total)
+	love.graphics.print("Your test is complete!", love.graphics.getWidth() / 2 - 11 * LetterWidth, 100)
+	love.graphics.print(correctAnswers, love.graphics.getWidth() / 2 - math.floor(string.len(correctAnswers) / 2) * LetterWidth, 300)
 end
 
 function state:keypressed(key, unicode)
@@ -74,7 +75,7 @@ function CheckLevelDecrease(higherLevel)		-- Checks whether the user's current l
     return studentInfo.ratingSum < levels[higherLevel][3] - 4		-- User is allowed to have a total rating sum 4 lower than that needed to move up a level; below this, the level will decrease
 end
 
-function CalculateLevel()
+function CalculateLevel()		-- Check whether the student's level needs to change at the end of the test
 	local currentRatings = {}
 	SumRatings()
 	print("Rating Sum:")
@@ -102,18 +103,23 @@ function CalculateLevel()
 	return level
 end
 
-function IncreaseLevel(newLevel)
+function IncreaseLevel(newLevel)		-- Create an increase in level if needed
 	for i,interval in ipairs(levels[newLevel][1]) do
 		studentInfo.rating[2 * interval - 1] = 1
 		studentInfo.rating[2 * interval] = 1
 	end
 end
 
-function DecreaseLevel(newLevel)
+function DecreaseLevel(newLevel)		-- Create a decrease in level if needed
 	for i,interval in ipairs(levels[newLevel + 1][1]) do
 		studentInfo.rating[2 * interval - 1] = 0
 		studentInfo.rating[2 * interval] = 1
 	end
+end
+
+function SendTestResults(correctAnswers, totalQuestions)
+	correct = correctAnswers
+	total = totalQuestions
 end
 
 

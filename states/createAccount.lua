@@ -31,6 +31,7 @@ end
 
 
 -------------------- GLOBAL FUNCTIONS:
+
 function state:new()
 	return lovelyMoon.new(self)
 end
@@ -154,7 +155,6 @@ function ValidateNewAccount() 						-- Ask the server to create the new account
 
 	serverTried = true
 	serverWaitTimer = serverWaitTime
-
 
 	local failureReason = serv:CreateNewAccount(name, surname, email, password1)
 	if failureReason then AccountFailed(failureReason) end

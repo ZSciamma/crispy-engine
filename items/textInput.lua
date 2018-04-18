@@ -9,18 +9,18 @@ local pointerMargin = 15
 
 function textInput:new(emptyText, x, y, width, height, secure)
 	self.on = true 						-- Is the field enabled?
-	self.x = x
-	self.y = y
-	self.maxLength = math.floor((width - 2 * pointerMargin) / LetterWidth)
+	self.x = x 							-- x coordinate of the upper left corner
+	self.y = y 							-- y coordinate of the upper left corner
+	self.maxLength = math.floor((width - 2 * pointerMargin) / LetterWidth) 		
 	self.width = self.maxLength * LetterWidth + 2 * pointerMargin
 	self.height = height
 	self.secure = secure or false		-- True if we want the text to be hidden
 	self.secureText = "" 				-- Only applicable if secure is true
 	self.pointery0 = self.y + (self.height - pointerHeight) / 2		-- Place pointer in middle of field
-	self.pointerx0 = self.x + pointerMargin
-	self.emptyText = emptyText
+	self.pointerx0 = self.x + pointerMargin 	-- x coordinate of the pointer
+	self.emptyText = emptyText 			-- Text displayed if field is empty
 
-	self:reset()
+	self:reset() 
 end
 
 function textInput:reset()
@@ -29,9 +29,9 @@ function textInput:reset()
 	self.active = false						-- True if the user clicked it and has not yet released
 	self.pressed = false					-- True if the user is writing something
 	self.pointerIndex = 0					-- How many letters in is the pointer?
-	self.hover = false
+	self.hover = false 						-- Is the mouse hovering above the text field?
 	self.pointerIsVis = true				-- Is the text pointer visible?
-	self.pointerTimer = 0
+	self.pointerTimer = 0 				
 end
 
 function textInput:update(dt)

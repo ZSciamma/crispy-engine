@@ -53,7 +53,7 @@ end
 
 local function notifyStudentOfTournament(roundTime, qsPerMatch)             -- Called to notify the student that a new tournament has started. Called once at the start of every tournament
     addAlert("Your teacher has started a new tournament!", 500, 500)
-    studentInfo.tournament = { RoundLength = RoundLength, QsPerMatch = qsPerMatch }
+    studentInfo.tournament = { RoundLength = roundTime, QsPerMatch = qsPerMatch }
 end
 
 local function notifyStudentOfMatch(startDay, ratings1, ratings2, seed, opponent)

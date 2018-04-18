@@ -200,6 +200,7 @@ end
 
 function state:disable()
 	clearButtons()
+	SendTestResults(correct, questionsAsked)
 	if studentInfo.inTournamentMatch then
 		serv:sendMatchResult(totalScore)
 		studentInfo.tournamentMatch = nil
@@ -267,16 +268,25 @@ function state:draw()
 	for i, button in ipairs(ansButtons) do
 		button:draw()
 	end
+	--[[
 	if questionsAsked ~= studentInfo.qsPerTest then
 		love.graphics.print(questions[questionsAsked + 1][1], 100, 100)
 		love.graphics.print(questions[questionsAsked + 1][2], 100, 150)
 		love.graphics.print(questions[questionsAsked + 1][3], 100, 200)
 	end
-
+	--]]
+	--[[
 	love.graphics.print("Rating: "..a, 50, 450)
 	love.graphics.print("Record: "..b, 50, 500)
 	love.graphics.print("Change: "..c, 50, 550)
-	love.graphics.print("Score: "..math.floor(totalScore + 0.5), 900, 100)
+	--]]
+	if studentInfo.inTournamentMatch then
+		love.graphics.print("Score: "..math.floor(totalScore + 0.5), 900, 100)
+	end
+	love.graphics.print("Correct:", 50, 100)
+	love.graphics.print(correct, 150, 100)
+	love.graphics.print("Incorrect: ", 50, 150)
+	love.graphics.print(questionsAsked - correct, 150, 150)
 end
 
 function state:keypressed(key, unicode)

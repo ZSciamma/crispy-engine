@@ -1,9 +1,11 @@
 local state = {}
 
 local backB = sButton("Back", 100, 100, 100, 50, "multiSetup", "menu")
-local nextB = sButton("Start Match", love.graphics.getWidth() - 150, 100, 200, 50, "multiSetup", "test")
+local nextB = sButton("Start Match", love.graphics.getWidth() - 250, 100, 200, 50, "multiSetup", "test")
 
 local questions
+
+local timeLeft
 
 
 -------------------- LOCAL FUNCTIONS:
@@ -41,6 +43,14 @@ end
 function state:enable()
 	studentInfo.inTournamentMatch = true 				-- If player goes through this state, they are about to participate in a tournament match
 	-- local tournamentStatus = serv:fetchTournamentInfo()
+
+	-- Find how long is left in the tournament match (if there is one):
+
+	if studentInfo.tournament.RoundLength and studentInfo.tournamentMatch.StartDay then
+		local dateTime = os.date('*t')
+		local yday = dateTime.yday
+		timeLeft = 24 - dateTime.hour + 24 * (tonumber(studentInfo.tournamentMatch.StartDay) + tonumber(studentInfo.tournament.RoundLength) - yday - 1)
+	end
 end
 
 function state:disable()
@@ -80,6 +90,7 @@ function state:draw()
 		love.graphics.print("No new matches!", 300, 275)
 	else
 		love.graphics.print("Your next match is waiting. Click 'next' to start it!", 300, 275)
+		love.graphics.print("You have "..timeLeft.." hours left to complete this match.", 300, 325)
 		nextB:draw()
 	end
 end
