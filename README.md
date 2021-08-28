@@ -1,6 +1,6 @@
 # CS A Level Project
 
-This project was completed during the 2017-18 school year as coursework for the UK Computer Science AQA A Level. It also included a 120-page technical specification with research, analysis, and testing. Furthermore, the project had to be discuess with an end-user, who helped guide the features and provided expertise to get the most out of the idea. Overall, the project scored 71/75 in the course.
+This project was completed during the 2017-18 school year as coursework for the UK Computer Science AQA A Level. It also included a 120-page technical specification with research, analysis, and testing. Furthermore, the project had to be discuess with an end-user, who helped guide the features and provided expertise to get the most out of the idea. The project scored 71/75 in the course. In the overall A Level, I scored in the top 50 out of around 4200 candidates.
 
 ## Components
 
