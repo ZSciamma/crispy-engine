@@ -1,6 +1,9 @@
+-- This state shows the user the class in which they are currently enrolled
 local state = {}
 
-local backB = sButton("Back", 100, 100, 50, 50, "options", "menu")
+-- State change buttons:
+
+local backB = sButton("Back", 100, 100, 100, 50, "class", "menu")
 
 function state:new()
 	return lovelyMoon.new(self)
@@ -27,6 +30,7 @@ end
 
 
 function state:update(dt)
+
 end
 
 
@@ -42,12 +46,13 @@ function state:keyreleased(key, unicode)
 
 end
 
-function state:mousepressed(x, y, button)
+function state:mousepressed(x, y)
 	backB:mousepressed(x, y)
 end
 
-function state:mousereleased(x, y, button)
+function state:mousereleased(x, y)
 	backB:mousereleased(x, y)
 end
+
 
 return state

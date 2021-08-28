@@ -62,6 +62,14 @@ function lovelyMoon.events.mousereleased(x, y, button)
 	end
 end
 
+function lovelyMoon.events.textinput(text)					-- Added by Zacharie Sciamma
+	for index, state in pairs(_slotState.states) do
+		if state and state._enabled and state.textinput then
+			state:textinput(text)
+		end
+	end
+end
+
 ------------------------------------------------------------------------------------------------------------------------------------------
 function lovelyMoon.new(s)
 	local gs = {}
@@ -69,7 +77,7 @@ function lovelyMoon.new(s)
 	gs = setmetatable(gs, s)
 	s.__index = s
 	_gs = gs
-	
+
 	return gs
 end
 
@@ -86,7 +94,7 @@ function lovelyMoon.isStateEnabled(id)
 	for index, state in pairs (_slotState.states) do
 		if state._id == id then
 			return state._enabled
-		end	
+		end
 	end
 end
 
@@ -105,6 +113,7 @@ function lovelyMoon.enableState(id)
 			state._enabled = true
 		end
 	end
+	checkAlertQueue()								-- Added by Zacharie Sciamma
 end
 
 function lovelyMoon.disableState(id)
@@ -119,6 +128,7 @@ end
 function lovelyMoon.switchState(currentID, nextID)
 	lovelyMoon.disableState(currentID)
 	lovelyMoon.enableState(nextID)
+	checkAlertQueue()								-- Added by Zacharie Sciamma
 end
 
 function lovelyMoon.toggleState(id)
